@@ -1,5 +1,5 @@
-rx = r"CREATE TABLE (\w*)"
-io = open("file.sql", "r")
+rx = r"CREATE TABLE \"?(\w*)\"?"
+io = open("create.sql", "r")
 
 
 while (!eof(io))
@@ -12,4 +12,5 @@ while (!eof(io))
     println("DROP TABLE IF EXISTS $(m.captures[1]) CASCADE;")
   end
 end
+close(io)
 
