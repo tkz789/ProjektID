@@ -1,0 +1,3 @@
+[deps]
+Faker = "0efc519c-db33-5916-ab87-703215c3906f"
+Impostor = "c85fbf42-ee25-425e-8745-f7176d4f19ec"
