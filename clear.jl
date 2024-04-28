@@ -9,7 +9,7 @@ while (!eof(io))
     continue
   else
 
-    println("DROP TABLE IF EXIST $(m.captures[1]) CASCADE;")
+    println("DROP TABLE IF EXISTS $(m.captures[1]) CASCADE;")
   end
 end
 
