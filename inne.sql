@@ -41,8 +41,8 @@ INSERT INTO zaimki (id_zaimka, nazwa) VALUES
 (7, 'ono/jenu'),
 (8, 'ono/ich');
 
-INSERT INTO edycje(id_edycji, nr_edycji , id_wydarzenia, data_rozpoczecia, data_zakonczenia, miejsce, podtytul) VALUES
-(1, 1, 1, '2023-11-10', '18/10/2024', 'Collegium Maximum UJ, Kraków', 'Pierwsza edycja Wielkiej Konferencji Matematyków i Informatyków'),
-(2, 2, 1, '2024-11-13', '18/10/2024', 'Collegium Maximum UJ, Kraków', 'Druga edycja Wielkiej Konferencji Matematyków i Informatyków'),
-(3, 1, 2, '2024-05-23', '14/02/2024', 'Forum Kraków', 'Pierwsza edycja ogólno-serwisowego speed-datingu'),
-(4, 1, 3, '2024-06-22', '22/07/2024', 'Wydział Matematyki i Informatyki UJ, Kraków', 'Pierwsza edycja Zawodów w Programowaniu Zespołowym');
+INSERT INTO edycje(id_edycji, nr_edycji, id_wydarzenia, data_rozpoczecia, data_zakonczenia, miejsce, podtytul) VALUES
+(1, 1, 1, '2023-10-13', '2023-10-16', 'Collegium Maximum UJ, Kraków', 'Pierwsza edycja Wielkiej Konferencji Matematyków i Informatyków'),
+(2, 2, 1, '2024-10-13', '2024-10-16', 'Collegium Maximum UJ, Kraków', 'Druga edycja Wielkiej Konferencji Matematyków i Informatyków'),
+(3, 1, 2, '2024-02-14', '2024-02-14', 'Forum Kraków', 'Pierwsza edycja ogólno-serwisowego speed-datingu'),
+(4, 1, 3, '2024-06-22', '2024-02-23', 'Wydział Matematyki i Informatyki UJ, Kraków', 'Pierwsza edycja Zawodów w Programowaniu Zespołowym');
