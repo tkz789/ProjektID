@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PassionTown</title>
+    <link rel="stylesheet" href="/static/styles/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jersey+25+Charted&family=Monoton&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logoo">
+            <img id="logo" src="static/images/logo.png">
+            <h3 id="name_website">PassionTown</h3></div>
+    <nav class="nav">
+        <ul class="nav-links">
+            <a href="{{ url_for('home') }}">
+                <li>Strona główna</li>
+            </a>
+            <a href="{{ url_for('aboutus') }}">
+                <li>O nas</li>
+            </a>
+            <a href="{{url_for('login')}}">
+                <li><button class="btn" href="{{url_for('login')}}">Zaloguj</button></li>
+            </a>
+        </ul>
+        <button class="nav-toggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </nav>
+    <div id="container__buttons">
+
+        <input type="button" name="bigger" value="A++" onclick="changeSizeB()">
+        <input type="button" name="lower" value="A--" onclick="changeSizeS()">
+        <input type="button" name="contrast" value="🌓" onclick="contrastPlease()">
+
+    </div>
+
+</header>
+    <main>
+        <section class="sect_main">
+            <div class="text_main">
+            <h1>Zaloguj się po pasje!</h1>
+            <p>Środowisko dla pasjonatów każdej dziedziny od matematyków po rekodzieło...</p>
+        </div>
+        <img id="phot" src="static/images/phot.png">
+        </section>
+        <section class="sect_lower">
+           <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem aspernatur modi distinctio totam rerum! Delectus ullam voluptatum esse nihil veniam sint, atque ipsum, natus tenetur non alias facere sequi magnam?</p>
+            
+        </section>
+        <button class="btn">Dołącz do nas!!</button>
+        <section class="inter">
+            <h2>Grupy zainteresowań:</h2>
+            <ul>
+                <li>Matematyka</li>
+                <li>Rekodzieło</li>
+                <li>Informatyka</li>
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 PassionTown</p>
+    </footer>
+</body>
+<script src="static/js/script.js"></script>
+</html>

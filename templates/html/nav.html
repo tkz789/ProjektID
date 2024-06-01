@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styless.css">
+    <title>Document</title>
+</head>
+
+
+        <header>
+            <div class="logoo">
+                <img id="logo" src="../images/logo.png">
+                <h3 id="name_website">PassionTown</h3></div>
+        <nav class="nav">
+            <ul class="nav-links">
+                <a href="../html/mainweb.html">
+                    <li>Strona główna</li>
+                </a>
+                <a href="../html/aboutus.html">
+                    <li>Tabele</li>
+                </a>
+                <a href="../html/login.html">
+                    <li><button class="btn" href="../html/login.html">Zaloguj</button></li>
+                </a>
+            </ul>
+            <button class="nav-toggle">
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          </nav>
+        <div id="container__buttons">
+
+            <input type="button" name="bigger" value="A++" onclick="changeSizeB()">
+            <input type="button" name="lower" value="A--" onclick="changeSizeS()">
+            <input type="button" name="contrast" value="🌓" onclick="contrastPlease()">
+
+        </div>
+
+    </header>
+<body>
+    <main id="container"><p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Odio aperiam ut veniam illum. Odit harum amet quasi veniam perferendis doloremque, eos sequi illo sapiente, consequuntur quo asperiores dolore sit. Neque!</p></main>
+    
+</body>
+<script>
+let photo = document.getElementById("logo");
+    let main = document.getElementById("container");
+    let buttons = document.getElementById('container__buttons');
+    let footer = document.getElementById('footer');
+    let content = document.getElementById('content');
+    let body = document.getElementById('body');
+    
+    
+    function contrast() {
+        if (main.classList.contains("highcontrast")) {
+            photo.classList.remove("photo_highcontrast");
+            main.classList.remove("highcontrast");
+            buttons.classList.remove("buttons_highcontrast");
+            content.classList.remove("highcontrast");
+            footer.classList.remove("highcontrast");
+            body.classList.remove("highcontrast");
+    
+        } else {
+            photo.classList.toggle("photo_highcontrast");
+            main.classList.toggle("highcontrast");
+            buttons.classList.toggle("buttons_highcontrast");
+            footer.classList.toggle("highcontrast");
+            content.classList.toggle("highcontrast");
+            body.classList.toggle("highcontrast");
+        }
+    }
+    
+    
+    
+    function changeSizeB() {
+        if (main.classList.contains("sizebig")) {
+            main.classList.remove("sizebig");
+    
+        } else {
+            main.classList.remove("sizesmall");
+            main.classList.toggle("sizebig");
+    
+        }
+    }
+    
+    function changeSizeS() {
+        if (main.classList.contains('sizesmall')) {
+    
+            main.classList.remove("sizesmall");
+    
+        } else {
+            main.classList.remove("sizebig");
+            main.classList.toggle("sizesmall");
+        }
+    }
+    
+    function contrastPlease() {
+        contrast();
+    }
+    const navToggle = document.querySelector('.nav-toggle');
+const navLinks = document.querySelector('.nav-links');
+
+navToggle.addEventListener('click', () => {
+  navLinks.classList.toggle('active');
+});
+    </script>
+</html>

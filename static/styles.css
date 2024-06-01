@@ -1,0 +1,23 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.community-posts {
+    margin: 20px;
+    border: 1px solid #ccc;
+    padding: 20px;
+}
+
+.post-header, .reply-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-id {
+    font-weight: bold;
+}
+
+.post-content, .reply-content {
+    margin-top: 10px;
+}
