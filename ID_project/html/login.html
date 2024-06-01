@@ -5,23 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PassionTown</title>
     <link rel="stylesheet" href="../styles/style_login.css">
+    <link rel="stylesheet" href="../styles/nav_style.css">
 </head>
 <body>
     <header>
         <div class="logoo">
-        <img id="logo" src="../images/logo.png">
-        <h3 id="name_website">PassionTown</h3></div>
-        <nav>
-            <ul>
-                <li><a href="../html/mainweb.html">Strona główna</a></li>
-                <li><a href="../html/aboutus.html">O nas</a></li>
-                <button class="btn" href="../html/login.html">Zaloguj</button>
-            </ul>
-            
-        </nav>
-        <button id="dark-mode-btn">Dark Mode</button>
-<button id="font-size-btn">Adjust Font Size</button>
-    </header>
+            <img id="logo" src="../images/logo.png">
+            <h3 id="name_website">PassionTown</h3></div>
+    <nav class="nav">
+        <ul class="nav-links">
+            <a href="../html/mainweb.html">
+                <li>Strona główna</li>
+            </a>
+            <a href="../html/aboutus.html">
+                <li>O nas</li>
+            </a>
+            <a href="../html/login.html">
+                <li><button class="btn" href="../html/login.html">Zaloguj</button></li>
+            </a>
+        </ul>
+        <button class="nav-toggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </nav>
+    <div id="container__buttons">
+
+        <input type="button" name="bigger" value="A++" onclick="changeSizeB()">
+        <input type="button" name="lower" value="A--" onclick="changeSizeS()">
+        <input type="button" name="contrast" value="🌓" onclick="contrastPlease()">
+
+    </div>
+
+</header>
     <main>
         <div class="container">
            
