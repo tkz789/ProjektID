@@ -1,13 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 import sys
+import os
 
 app = Flask(__name__)
 
 def get_db_connection():
     conn = psycopg2.connect(
-        database="dawid",
-        user="dawid"
+        database=os.getlogin(),
+        user=os.getlogin()
     )
     return conn
 
