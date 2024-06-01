@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passiontown Community</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header a {
+            color: white;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .header a:hover {
+            text-decoration: underline;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .post {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .post h3 {
+            margin: 0;
+        }
+
+        .post p {
+            margin: 5px 0;
+        }
+
+        .post .details {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="#">Passiontown</a>
+        <div>
+            <a href="#">Matematyka</a>
+            <a href="#">Programowanie</a>
+            <a href="#">Neko_:3</a>
+            <a href="#">Szydełkowanie</a>
+            <a href="#">Boks</a>
+            <a href="#">Kotki</a>
+            <a href="#">Książki fantasy</a>
+            <a href="#">Anime</a>
+            <a href="#">Fantasy_boy</a>
+            <a href="#">Plan your travel</a>
+            <button id="login">Zaloguj</button>
+        </div>
+    </div>
+    <div class="main-content">
+        <div id="posts-container"></div>
+        <button id="load-more">Wczytaj więcej</button>
+    </div>
+
+    <script>
+        const postsContainer = document.getElementById('posts-container');
+        const loadMoreButton = document.getElementById('load-more');
+
+        let communityId = 1; // You can change this value to load posts from a specific community
+        let page = 1;
+
+        function createPostElement(post) {
+            const postElement = document.createElement('div');
+            postElement.classList.add('post');
+
+            const titleElement = document.createElement('h3');
+            titleElement.textContent = post.tytul;
+            postElement.appendChild(titleElement);
+
+            const contentElement = document.createElement('p');
+            contentElement.textContent = post.tresc;
+            postElement.appendChild(contentElement);
+
+            const detailsElement = document.createElement('div');
+            detailsElement.classList.add('details');
+            detailsElement.textContent = `Dodano: ${post.data_dodania} | Autor: ${post.id_czlonka}`;
+            postElement.appendChild(detailsElement);
+
+            return postElement;
+        }
+
+        async function fetchPosts() {
+            const response = await fetch(`/api/posts?communityId=${communityId}&page=${page}`);
+            const data = await response.json();
+            return data.posts;
+        }
+
+        function appendPosts(posts) {
+            for (const post of posts) {
+                const postElement = createPostElement(post);
+                postsContainer.appendChild(postElement);
+            }
+        }
+
+        async function loadMorePosts() {
+            page++;
+            const posts = await fetchPosts();
+            appendPosts(posts);
+        }
+
+        loadMoreButton.addEventListener('click', loadMorePosts);
+
+        (async function init() {
+            const posts = await fetchPosts();// Fetch initial posts
+            appendPosts(posts);
+        })();
+    </script>
+</body>
+</html>
