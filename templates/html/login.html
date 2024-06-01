@@ -1,49 +1,19 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PassionTown</title>
-    <link rel="stylesheet" href="static/styles/style_login.css">
-</head>
-<body>
-    <header>
-        <div class="logoo">
-        <img id="logo" src="static/images/logo.png">
-        <h3 id="name_website">PassionTown</h3></div>
-        <nav>
-            <ul class="nav-links">
-                <a href="{{ url_for('home') }}">
-                    <li>Strona główna</li>
-                </a>
-                <a href="{{ url_for('aboutus') }}">
-                    <li>O nas</li>
-                </a>
-                <a href="{{url_for('login')}}">
-                    <li><button class="btn" href="{{url_for('login')}}">Zaloguj</button></li>
-                </a>
-            </ul>
-        </nav>
-        <button id="dark-mode-btn">Dark Mode</button>
-<button id="font-size-btn">Adjust Font Size</button>
-    </header>
-    <main>
-        <div class="container">
-           
-            <form id="login-form">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username"><br><br>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password"><br><br>
-                <input  class="btn" type="submit" value="Login">
-            </form>
-            <div id="error-message"></div>
-        </div>
-        <img id="photo" src="static/images/log_phot.png">
-    </main>
-    <footer>
-        <p>&copy; 2024 PassionTown</p>
-    </footer>
-</body>
-<script src="static/js/script.js"></script>
-</html>
+{% extends 'html/index.html' %}
+
+{% block style %}style_login.css{% endblock %}
+
+{% block body %}
+<div class="container">
+    
+    <form id="login-form">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username"><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br><br>
+        <input  class="btn" type="submit" value="Login">
+    </form>
+    <div id="error-message"></div>
+</div>
+<img id="photo" src="static/images/log_phot.png">
+{% endblock %}
+

@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
+import sys
 
 app = Flask(__name__)
 
@@ -13,7 +14,7 @@ def get_db_connection():
 
 @app.route('/')
 def index():
-    return render_template('html/index.html')
+    return redirect(url_for('home'))
 
 @app.route('/login')
 def login():
@@ -25,7 +26,14 @@ def aboutus():
 
 @app.route("/home")
 def home():
-    return render_template('html/index.html')
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT nazwa from spolecznosci")
+    spolecznosci = cur.fetchall()
+    conn.commit()
+    print("TEST", file=sys.stderr)
+    print(spolecznosci, file=sys.stderr)
+    return render_template('html/index.html', spolecznosci=spolecznosci)
 
 if __name__ == '__main__':
     app.run(debug=True)
