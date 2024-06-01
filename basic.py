@@ -2,8 +2,16 @@ from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 import sys
 import os
+import flask_login
+
 
 app = Flask(__name__)
+app.secret_key = "haszcze_W_kleszczach"
+
+
+# login_manager = flask_login.LoginManager()
+
+# login_manager.init_app(app)
 
 def get_db_connection():
     conn = psycopg2.connect(
