@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PassionTown</title>
+    <link rel="stylesheet" href="../styles/style_login.css">
+</head>
+<body>
+    <header>
+        <div class="logoo">
+        <img id="logo" src="../images/logo.png">
+        <h3 id="name_website">PassionTown</h3></div>
+        <nav>
+            <ul>
+                <li><a href="../html/mainweb.html">Strona główna</a></li>
+                <li><a href="../html/aboutus.html">O nas</a></li>
+                <button class="btn" href="../html/login.html">Zaloguj</button>
+            </ul>
+            
+        </nav>
+        <button id="dark-mode-btn">Dark Mode</button>
+<button id="font-size-btn">Adjust Font Size</button>
+    </header>
+    <main>
+        <div class="container">
+           
+            <form id="login-form">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username"><br><br>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password"><br><br>
+                <input  class="btn" type="submit" value="Login">
+            </form>
+            <div id="error-message"></div>
+        </div>
+        <img id="photo" src="../images/log_phot.png">
+    </main>
+    <footer>
+        <p>&copy; 2024 PassionTown</p>
+    </footer>
+</body>
+<script src="../js/script.js"></script>
+</html>

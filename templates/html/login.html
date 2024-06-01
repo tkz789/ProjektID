@@ -1,0 +1,19 @@
+{% extends 'html/index.html' %}
+
+{% block style %}style_login.css{% endblock %}
+
+{% block body %}
+<div class="container">
+    
+    <form id="login-form">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username"><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br><br>
+        <input  class="btn" type="submit" value="Login">
+    </form>
+    <div id="error-message"></div>
+</div>
+<img id="photo" src="static/images/log_phot.png">
+{% endblock %}
+
