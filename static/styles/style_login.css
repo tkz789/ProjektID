@@ -219,6 +219,7 @@
           border: solid 2px #011EFF;
           border-radius: 15%;
           padding: 5vw;
+          margin-bottom: -2vw;
         
         }
         .form_regist #submit{

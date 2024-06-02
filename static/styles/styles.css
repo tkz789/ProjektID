@@ -19,7 +19,7 @@
   }
   
   p {
-	font-size: 3vw;
+	font-size: 2vw;
 	line-height: 1.5;
 	margin-bottom: 10vw;
   }
@@ -94,6 +94,7 @@
  
   .inter ul {
 	list-style: none;
+	line-height: 1.5;
   }
   
   @media (max-width: 768px) {
@@ -187,6 +188,7 @@ border: solid 2px #011EFF;
 	border: solid 2px #011EFF;
 	border-radius: 15%;
 	padding: 5vw;
+	margin-bottom: -2vw;
 
 }
 .form_regist #submit{
@@ -205,6 +207,7 @@ display: flex;
 flex-direction: row;
 align-items: center;
 cursor: pointer;
+
 }
 .form_regist #submit:hover{
 
