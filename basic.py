@@ -167,6 +167,7 @@ def logout():
 def dashboard():
     return f'Hello, {current_user.nazwa_uzytkownika}!'
 
+
 @app.route('/get_statistics', methods=['GET'])
 def get_statistics():
     conn = get_db_connection()
@@ -177,10 +178,10 @@ def get_statistics():
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute('''
                 SELECT 
-                    id_spolecznosci, 
-                    nazwa, 
-                    (SELECT count(*) FROM get_participants(id_edycji)) as count_participants 
-                FROM spolecznosci join edycji
+                    e.nr_edycji, 
+                    w.nazwa, 
+                    count_participants(e.id_edycji) as count_participants 
+                FROM edycje e join wydarzenia w on e.id_wydarzenia = w.id_wydarzenia;
             ''')
             data = cur.fetchall()
             return jsonify(data)
@@ -190,5 +191,100 @@ def get_statistics():
     finally:
         conn.close()
 
+@app.route('/register_talk', methods=['GET', 'POST'])
+def register_talk():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        speaker_id = request.form['speaker_id']
+        edit = request.form['edit']
+        room = request.form['room']
+        talk_date = request.form['talk_date']
+        talk_length = request.form['talk_length']
+        subj = request.form['subj']
+        descript = request.form['descript']
+
+        cur.execute("""
+            SELECT register_talk(%s, %s, %s, %s, %s, %s, %s);
+        """, (speaker_id, edit, room, talk_date, talk_length, subj, descript))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return redirect(url_for('index'))
+
+    cur.execute('SELECT id_sali, adres, nazwa FROM sale')
+    rooms = cur.fetchall()
+    
+    cur.execute('SELECT id_prelegenta, imie, nazwisko FROM prelegenci')
+    speakers = cur.fetchall()
+    
+    cur.execute('SELECT dlugosc_prelekcji, dlugosc FROM dlugosci')
+    lengths = cur.fetchall()
+
+    cur.close()
+    conn.close()
+    
+    return render_template('html/register_talk.html', rooms=rooms, speakers=speakers, lengths=lengths)
+
+@app.route('/add_speaker', methods=['GET', 'POST'])
+def add_speaker():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        speaker_id = request.form['speaker_id']
+        talk_id = request.form['talk_id']
+
+        cur.execute("""
+            SELECT add_to_talk(%s, %s);
+        """, (speaker_id, talk_id))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return redirect(url_for('index'))
+
+    cur.execute('SELECT id_prelegenta, imie, nazwisko FROM prelegenci')
+    speakers = cur.fetchall()
+    
+    cur.execute('SELECT id_prelekcji, temat FROM prelekcje')
+    talks = cur.fetchall()
+
+    cur.close()
+    conn.close()
+    
+    return render_template('html/add_speaker.html', speakers=speakers, talks=talks)
+
+
+
+@app.route('/admin_panel', methods=['GET', 'POST'])
+def admin_panel():
+    if request.method == 'POST':
+        edit_id = request.form['edit_id']
+        badge_type = request.form['badge_type']
+        badges = generate_badges(edit_id, badge_type)
+        return render_template('html/badges.html', badges=badges)
+
+    return render_template('html/admin_panel.html')
+
+def generate_badges(edit_id, badge_type):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if badge_type == 'attendees':
+        cur.execute("SELECT * FROM generate_attendee_badges(%s)", (edit_id,))
+    elif badge_type == 'volunteers':
+        cur.execute("SELECT * FROM generate_volonteer_badges(%s)", (edit_id,))
+    elif badge_type == 'organisers':
+        cur.execute("SELECT * FROM generate_organiser_badges(%s)", (edit_id,))
+    elif badge_type == 'speakers':
+        cur.execute("SELECT * FROM generate_speaker_badges(%s)", (edit_id,))
+
+    badges = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return badges
+    
 if __name__ == '__main__':
     app.run(debug=True)
