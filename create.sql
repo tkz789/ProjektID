@@ -64,7 +64,8 @@ CREATE TABLE "czlonkowie" (
   "imie" varchar(30) NOT NULL,
   "nazwisko" varchar(150) NOT NULL,
   "newsletter" bool,
-  "data_dolaczenia" date NOT NULL
+  "data_dolaczenia" date NOT NULL,
+  "haslo_hash" char(162)
 );
 
 CREATE TABLE "czlonkowie_archiwum" (
@@ -117,17 +118,17 @@ CREATE TABLE "prelekcje_prelegenci" (
   UNIQUE("id_prelegenta", "id_prelekcji")
 );
 
-CREATE TABLE "hasla" (
-  "id_czlonka" integer NOT NULL,
-  "data_od" date NOT NULL,
-  "haslo" varchar(50) NOT NULL
-);
+-- CREATE TABLE "hasla" (
+--   "id_czlonka" integer NOT NULL,
+--   "data_od" date NOT NULL,
+--   "haslo" varchar(162) NOT NULL
+-- );
 
-CREATE TABLE "hasla_archiwum" (
-  "id_czlonka" integer NOT NULL,
-  "data_od" date NOT NULL,
-  "haslo" varchar(50) NOT NULL
-);
+-- CREATE TABLE "hasla_archiwum" (
+--   "id_czlonka" integer NOT NULL,
+--   "data_od" date NOT NULL,
+--   "haslo" varchar(162) NOT NULL
+-- );
 
 CREATE TABLE "posty" (
   "id_posta" serial PRIMARY KEY,

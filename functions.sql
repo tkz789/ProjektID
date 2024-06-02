@@ -1,17 +1,30 @@
-create or replace function login(username varchar(30), g_password varchar(50)) returns integer as $$
-declare user_id integer;
-user_password varchar(50);
+-- create or replace function login(username varchar(30), g_password varchar(162)) returns integer as $$
+-- declare user_id integer;
+-- user_password varchar(50);
+-- begin
+-- user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = username);
+-- if(user_id is null) then raise exception 'Niepoprawna nazwa uzytkownika'; end if;
+-- user_password = (select haslo from hasla where id_czlonka = user_id 
+-- and data_od = (select max(h.data_od) from hasla h where h.id_czlonka = user_id));
+-- if(user_password is null or g_password != user_password) then raise exception 'Wprowadzone haslo jest nieprawidlowe'; end if;
+-- return user_id;
+-- end;
+-- $$ language plpgsql;
+
+create or replace function get_user_id(username varchar(30)) returns integer as $$
+declare user_id integer default -1;
 begin
+if(exists(select id_czlonka from czlonkowie where nazwa_uzytkownika = username)) then 
 user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = username);
-if(user_id is null) then raise exception 'Niepoprawna nazwa uzytkownika'; end if;
-user_password = (select haslo from hasla where id_czlonka = user_id 
-and data_od = (select max(h.data_od) from hasla h where h.id_czlonka = user_id));
-if(user_password is null or g_password != user_password) then raise exception 'Wprowadzone haslo jest nieprawidlowe'; end if;
+end if;
+if(user_id = -1) then
+raise exception 'Nie znaleziono uzytkownika';
+end if;
 return user_id;
 end;
 $$ language plpgsql;
 
-create or replace function register(username_ varchar(30), email_ varchar(100), name_ varchar(30), surname_ varchar(150), password_ varchar(50),
+create or replace function register(username_ varchar(30), email_ varchar(100), name_ varchar(30), surname_ varchar(150), password_ char(162),
 pronoun_id integer, newsletter boolean default true) returns boolean as $$
 declare user_id integer;
 begin
@@ -19,10 +32,8 @@ user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = username_
 if(user_id is not null) then raise exception 'Podana nazwa uzytkownika jest juz zajeta'; end if;
 user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = email_);
 if(user_id is not null) then raise exception 'Podany email jest juz zajety'; end if;
-insert into czlonkowie(id_zaimka, nazwa_uzytkownika, email, imie, nazwisko, newsletter, data_dolaczenia) values (pronoun_id, username_, email_, name_, surname_,
-newsletter, NOW());
-user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = username_);
-insert into hasla values (user_id, now(), password_);
+insert into czlonkowie(id_zaimka, nazwa_uzytkownika, email, imie, nazwisko, newsletter, data_dolaczenia, haslo_hash) values (pronoun_id, username_, email_, name_, surname_,
+newsletter, NOW(), password_);
 return true;
 end;
 $$ language plpgsql;
