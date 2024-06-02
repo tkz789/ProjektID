@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Community Feed</title>
+  </head>
+  <body>
+    <h1>Posts for Community ID: {{ community_id }}</h1>
+    
+    {% if posts %}
+      <ul>
+        {% for post in posts %}
+          <li>
+            <h2>{{ post[5] }}</h2>
+            <p>{{ post[6] }}</p>
+            <p><small>Posted by member ID {{ post[3] }} on {{ post[4] }}</small></p>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No posts available for this community.</p>
+    {% endif %}
+    
+    <form action="/feed" method="GET">
+      <button type="submit">Back to Feed</button>
+    </form>
+  </body>
+</html>

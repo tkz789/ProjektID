@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Communities</title>
+  </head>
+  <body>
+    <h1>Communities</h1>
+    
+    {% if communities %}
+      <ul>
+        {% for community in communities %}
+          <li>
+            <form action="/feed" method="get">
+              <input type="hidden" name="community_id" value="{{ community[0] }}">
+              <button type="submit">{{ community[1] }}</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No communities available for this user.</p>
+    {% endif %}
+  </body>
+</html>
