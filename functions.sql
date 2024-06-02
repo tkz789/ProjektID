@@ -239,3 +239,106 @@ return query
      order by p.data_prelekcji, p.id_sali;
 end;
 $$ language plpgsql;
+
+create or replace function generate_attendee_badges(edit_id int) returns table(imie varchar(30), nazwisko varchar(150), tekst varchar) as $$
+declare 
+begin
+    return query
+    select c.imie, c.nazwisko, 'uczestnik'::varchar
+    from czlonkowie c right join czlonkowie_edycje ce on c.id_czlonka = ce.id_czlonka where ce.id_edycji = edit_id;
+end;
+$$ language plpgsql;
+
+create or replace function generate_volonteer_badges(edit_id int) returns table(imie varchar(30), nazwisko varchar(150), tekst varchar) as $$
+declare 
+begin
+    return query
+    select c.imie, c.nazwisko, 'wolontariusz'::varchar
+    from czlonkowie c right join wolontariusze ce on c.id_czlonka = ce.id_czlonka where ce.id_edycji = edit_id;
+end;
+$$ language plpgsql;
+
+create or replace function generate_organiser_badges(edit_id int) returns table(imie varchar(30), nazwisko varchar(150), tekst varchar) as $$
+declare 
+begin
+    return query
+    select c.imie, c.nazwisko, 'organizator'::varchar
+    from czlonkowie c right join organizatorzy ce on c.id_czlonka = ce.id_czlonka where ce.id_edycji = edit_id;
+end;
+$$ language plpgsql;
+
+create or replace function generate_speaker_badges(edit_id int) returns table(imie varchar(30), nazwisko varchar(150), tekst varchar) as $$
+begin
+    return query
+    select s.imie, s.nazwisko, 'prelegent'::varchar
+    from prelegenci s join prelekcje p on (exists(select * from prelekcje_prelegenci r 
+    where r.id_prelekcji = p.id_prelekcji and r.id_prelegenta = s.id_prelegenta)) where p.id_edycji = edit_id group by s.id_prelegenta;
+    end;
+$$ language plpgsql;
+
+create or replace function register_trigger() returns trigger as $$
+begin
+    select register(NEW.nazwa_uzytkownika, NEW.email, NEW.imie, NEW.nazwisko, 'password', NEW.id_zamika, NEW.newsletter);
+    return old;
+end;
+$$ language plpgsql;
+
+create or replace function post_trigger() returns trigger as $$
+begin
+    select make_post(NEW.id_posta_nad, NEW.id_spolecznosci, NEW.id_czlonka, NEW.tytul, NEW.tresc);
+    return old;
+end;
+$$ language plpgsql;
+
+create or replace function volo_trigger() returns trigger as $$
+begin
+    select register_as_volonteer(NEW.id_czlonka, NEW.id_edycji);
+    return old;
+end;
+$$ language plpgsql;
+
+CREATE TRIGGER rejestracja BEFORE INSERT ON czlonkowie
+FOR EACH ROW EXECUTE PROCEDURE register_trigger();
+
+CREATE TRIGGER posty BEFORE INSERT ON posty
+FOR EACH ROW EXECUTE PROCEDURE post_trigger();
+
+CREATE TRIGGER wolo BEFORE INSERT ON wolontariusze
+FOR EACH ROW EXECUTE PROCEDURE volo_trigger();
+
+create or replace function archive() returns void as $$
+declare 
+user_to_archive record;
+post_to_archive record;
+last_post date;
+begin
+for post_to_archive in select * from posty loop
+    if(post_to_archive.data_dodania + '1 year'::interval < NOW()) then
+        update posty p set id_posta_nad = post_to_archive.id_posta_nad where p.id_posta_nad = post_to_archive.id_posta;
+        update posty p set id_posta_nad = null where p.id_posta_nad = post_to_archive.id_posta;
+
+        insert into posty_archiwum values (post_to_archive.id_posta, post_to_archive.id_posta_nad,
+        post_to_archive.id_spolecznosci, post_to_archive.id_czlonka, post_to_archive.data_dodania, 
+        post_to_archive.tytul, post_to_archive.tresc);
+        delete from posty p where p.id_posta = post_to_archive.id_posta;
+    end if;
+end loop;
+for user_to_archive in select * from czlonkowie loop
+    last_post = null;
+    if(user_to_archive.data_dolaczenia + '1 year'::interval < NOW()) then 
+        last_post = (select max(data_dodania) from posty where id_czlonka = user_to_archive.id_czlonka);
+        if(last_post is null) then 
+            delete from czlonkowie_edycje where id_czlonka = user_to_archive.id_czlonka;
+            delete from czlonkowie_spolecznosci where id_czlonka = user_to_archive.id_czlonka;
+            delete from wolontariusze where id_czlonka = user_to_archive.id_czlonka;
+            delete from organizatorzy where id_czlonka = user_to_archive.id_czlonka;
+            update prelegenci p set id_czlonka = null where p.id_czlonka = user_to_archive.id_czlonka;
+            insert into czlonkowie_archiwum values (user_to_archive.id_czlonka, user_to_archive.id_zaimka, user_to_archive.nazwa_uzytkownika,
+            user_to_archive.email, user_to_archive.imie, user_to_archive.nazwisko, user_to_archive.newsletter, user_to_archive.data_dolaczenia);
+            delete from czlonkowie where id_czlonka = user_to_archive.id_czlonka;
+        end if;
+    end if;
+
+end loop;
+end;
+$$ language plpgsql;
