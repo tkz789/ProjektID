@@ -16,12 +16,14 @@
   h1 {
 	font-size: 05vw;
 	margin-bottom: 10vw;
+	color: #070722;
   }
   
   p {
 	font-size: 2vw;
 	line-height: 1.5;
 	margin-bottom: 10vw;
+	color: #070722;
   }
   
 
@@ -243,4 +245,14 @@ cursor: pointer;
 		box-shadow: 25px 25px 0px #070722;
 		margin-top: 3vw;
 		margin-bottom: 2vw;
+	  }
+	  .high-contrast {
+		filter: invert(1);
+	  }
+	  .rotated-font {
+		transform: rotate(20deg);
+	  }
+	  .dark {
+		background-color: #333;
+		color: #fff;
 	  }

@@ -3,6 +3,11 @@
   padding: 0;
 
 }
+.monoton-regular {
+	font-family: "Monoton", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+  }
     body {
         background-color: #fff;
         font-family: 'Roboto', sans-serif;
@@ -255,14 +260,26 @@
           font-style: normal;
           font-size: 05vw;
           margin-bottom: 2vw;
+          color: #070722;
           }
           .holly_center_pls_press_f_for_coder{
             display: grid;
             align-items: center;
             justify-items: center;
+            color: #070722;
           }
           .form_regist div{
             margin: 1vw;
             font-size: medium;
             font-family: Roboto, sans-serif;
           }
+          .high-contrast {
+            filter: invert(1);
+            }
+            .rotated-font {
+            transform: rotate(20deg);
+            }
+            .dark {
+            background-color: #333;
+            color: #fff;
+            }
