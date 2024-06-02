@@ -173,6 +173,10 @@ def get_statistics():
     finally:
         conn.close()
 
+@app.route('/statistics')
+def statistics():
+    return render_template('html/statistics.html')
+
 @app.route('/register_talk', methods=['GET', 'POST'])
 def register_talk():
     conn = get_db_connection()
