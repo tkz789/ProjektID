@@ -10,9 +10,10 @@
     {% endfor %}
 {% endif %}
 {% endwith %}
-<div class="container">
+<div class="holly_center_pls_press_f_for_coder">
+    <h3 class="h2_form">Logowanie</h3>
     {{ form.hidden_tag() }}
-    <form id="login-form" method="POST">
+    <form class="form_regist" id="login-form" method="POST">
         {{ form.username.label }} {{ form.username }}
         <br><br>
         {{ form.password.label }} {{ form.password }}

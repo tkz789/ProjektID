@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Register Talk</title>
+  </head>
+  <body>
+    <h1>Register Talk</h1>
+    <form method="POST">
+      <label for="speaker_id">Speaker:</label>
+      <select name="speaker_id" id="speaker_id">
+        {% for speaker in speakers %}
+          <option value="{{ speaker[0] }}">{{ speaker[1] }} {{ speaker[2] }}</option>
+        {% endfor %}
+      </select><br>
+      
+      <label for="edit">Edition ID:</label>
+      <input type="number" id="edit" name="edit"><br>
+
+      <label for="room">Room:</label>
+      <select name="room" id="room">
+        {% for room in rooms %}
+          <option value="{{ room[0] }}">{{ room[1] }} - {{ room[2] }}</option>
+        {% endfor %}
+      </select><br>
+
+      <label for="talk_date">Talk Date:</label>
+      <input type="datetime-local" id="talk_date" name="talk_date"><br>
+
+      <label for="talk_length">Talk Length:</label>
+      <select name="talk_length" id="talk_length">
+        {% for length in lengths %}
+          <option value="{{ length[0] }}">{{ length[1] }}</option>
+        {% endfor %}
+      </select><br>
+
+      <label for="subj">Subject:</label>
+      <input type="text" id="subj" name="subj"><br>
+
+      <label for="descript">Description:</label>
+      <textarea id="descript" name="descript"></textarea><br>
+
+      <button type="submit">Register Talk</button>
+    </form>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+  </body>
+</html>

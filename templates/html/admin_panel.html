@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Admin panel</title>
+  </head>
+  <body>
+    <h1>Welcome to admin panel</h1>
+    <a href="{{ url_for('register_talk') }}">Register Talk</a><br>
+    <a href="{{ url_for('add_speaker') }}">Add Speaker to Talk</a>
+    <h1>Generate Badgess</h1>
+    <form action="/admin_panel" method="post">
+        <label for="edit_id">Id edycji:</label>
+        <input type="text" id="edit_id" name="edit_id" required>
+        <br>
+        <label for="badge_type">Select badge type:</label>
+        <select id="badge_type" name="badge_type">
+            <option value="attendees">Attendees</option>
+            <option value="volunteers">Volunteers</option>
+            <option value="organisers">Organisers</option>
+            <option value="speakers">Speakers</option>
+        </select>
+        <br>
+        <input type="submit" value="Generate Badges">
+    </form>
+  </body>
+</html>
