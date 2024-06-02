@@ -46,7 +46,9 @@
   font-family: 'Roboto', sans-serif;
   }
  
-  
+  .button_ul{
+	list-style: none;
+  }
   
   .sect_lower{
 	display: flex;
