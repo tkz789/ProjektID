@@ -172,4 +172,53 @@ background: linear-gradient(90deg, #011EFF 0%, #c500cc 100%);
 
 border: solid 2px #011EFF;
 }
+.form_regist{
+	border: solid 2px #011EFF;
+	border-radius: 15%;
+	padding: 5vw;
 
+}
+.form_regist #submit{
+	font-family: Roboto, sans-serif;
+font-weight: 0;
+font-size: 14px;
+color: #fff;
+background: linear-gradient(90deg, #011EFF 0%, #c500cc 100%);
+padding: 10px 30px;
+border: 2px solid #011EFF;
+box-shadow: rgb(0, 0, 0) 0px 0px 0px 0px;
+border-radius: 50px;
+transition : 1000ms;
+transform: translateY(0);
+display: flex;
+flex-direction: row;
+align-items: center;
+cursor: pointer;
+}
+.form_regist #submit:hover{
+
+	transition : 1000ms;
+	padding: 10px 50px;
+	transform : translateY(-0px);
+	background: linear-gradient(90deg, #011EFF 0%, #c500cc 100%);
+	
+	border: solid 2px #011EFF;
+	}
+
+	.h2_form{
+		font-family: "Monoton", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+	font-size: 05vw;
+	margin-bottom: 2vw;
+	}
+	.holly_center_pls_press_f_for_coder{
+		display: grid;
+		align-items: center;
+		justify-items: center;
+	}
+	.form_regist div{
+		margin: 1vw;
+		font-size: medium;
+		font-family: Roboto, sans-serif;
+	}

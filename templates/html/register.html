@@ -1,5 +1,5 @@
 {% extends "html/index.html" %}
-{% block title %}Register{% endblock %}
+{% block title %}Rejestracja{% endblock %}
 {% block body %}
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -8,8 +8,9 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
-    <h2>Register</h2>
-    <form method="POST">
+    <div class="holly_center_pls_press_f_for_coder">
+    <h2 class="h2_form">Rejestracja</h2>
+    <form class="form_regist" method="POST">
         {{ form.hidden_tag() }}
         <div>
             {{ form.username.label }} {{ form.username }}
@@ -33,4 +34,5 @@
             {{ form.submit }}
         </div>
     </form>
+</div>
 {% endblock %}
