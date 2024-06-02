@@ -177,6 +177,55 @@ def get_statistics():
 def statistics():
     return render_template('html/statistics.html')
 
+def get_posts(community_id):
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    # Execute the function
+    cur.execute('SELECT * FROM get_posts(%s)', (community_id,))
+    posts = cur.fetchall()
+    
+    # Close the connection
+    cur.close()
+    conn.close()
+    
+    return posts
+
+@app.route('/feed')
+def feed():
+    community_id = request.args.get('community_id')
+    if not community_id:
+        user_id = current_user.data['id_czlonka']
+        communities = get_communities(user_id)
+        return render_template('html/communities.html', communities=communities)
+
+    try:
+        community_id = int(community_id)
+    except ValueError:
+        return "Invalid Community ID", 400
+    
+    posts = get_posts(community_id)
+    
+    return render_template('html/feed.html', posts=posts, community_id=community_id)
+
+
+def get_communities(member_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT id_spolecznosci FROM get_communities(%s)', (member_id,))
+    community_ids = cur.fetchall()
+    
+    communities = []
+    for community_id in community_ids:
+        cur.execute('SELECT id_spolecznosci, nazwa FROM spolecznosci WHERE id_spolecznosci = %s', (community_id,))
+        communities.append(cur.fetchone())
+    
+    cur.close()
+    conn.close()
+    
+    return communities
+
 @app.route('/register_talk', methods=['GET', 'POST'])
 def register_talk():
     conn = get_db_connection()
