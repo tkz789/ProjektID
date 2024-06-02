@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Badges</title>
+</head>
+<body>
+    <h1>Generated Badges</h1>
+    <table border="1">
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Badge Text</th>
+        </tr>
+        {% for badge in badges %}
+        <tr>
+            <td>{{ badge[0] }}</td>
+            <td>{{ badge[1] }}</td>
+            <td>{{ badge[2] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a href="{{ url_for('index') }}">Generate more badges</a>
+</body>
+</html>
