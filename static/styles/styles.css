@@ -225,6 +225,7 @@ cursor: pointer;
 	font-style: normal;
 	font-size: 05vw;
 	margin-bottom: 2vw;
+	word-spacing: 1vw;
 	}
 	.holly_center_pls_press_f_for_coder{
 		display: grid;
@@ -236,3 +237,10 @@ cursor: pointer;
 		font-size: medium;
 		font-family: Roboto, sans-serif;
 	}
+	#photo{
+		width: 30vw;
+		height: 30vw;
+		box-shadow: 25px 25px 0px #070722;
+		margin-top: 3vw;
+		margin-bottom: 2vw;
+	  }

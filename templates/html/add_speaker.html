@@ -1,28 +1,36 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Add Speaker to Talk</title>
-  </head>
-  <body>
-    <h1>Add Speaker to Talk</h1>
-    <form method="POST">
-      <label for="speaker_id">Speaker:</label>
+{% extends "html/index.html" %}
+{% block title %}Rejestracja  rozmowy{% endblock %}
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="holly_center_pls_press_f_for_coder">
+    <h2 class="h2_form">Formularz dodania mówcy</h2>
+    <form class="form_regist" method="POST">
+      <div>
+      <label for="speaker_id">Mówca:</label>
       <select name="speaker_id" id="speaker_id">
         {% for speaker in speakers %}
           <option value="{{ speaker[0] }}">{{ speaker[1] }} {{ speaker[2] }}</option>
         {% endfor %}
-      </select><br>
-      
-      <label for="talk_id">Talk:</label>
+      </select>
+    </div>
+      <div>
+      <label for="talk_id">Rozmowa:</label>
       <select name="talk_id" id="talk_id">
         {% for talk in talks %}
           <option value="{{ talk[0] }}">{{ talk[1] }}</option>
         {% endfor %}
-      </select><br>
-
-      <button type="submit">Add Speaker</button>
-    </form>
-    <a href="{{ url_for('index') }}">Back to Home</a>
-  </body>
-</html>
+      </select></div>
+      <div>
+      <button class="btn" type="submit">Dodaj mówce!</button> </div>
+    </form> 
+    <a class="btn" href="{{ url_for('home') }}">Powrót</a>
+  </div>
+  <img id="photo" src="static/images/log_phot.png">
+    {% endblock %}
