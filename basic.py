@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, url_for, abort, jsonify, flash
-# from flask_sqlalchemy import SQLAlchemy
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import sys
@@ -12,10 +11,7 @@ from datetime import date
 app = Flask(__name__)
 
 app.secret_key = "haszcze_W_kleszczach"
-# app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql+psycopg2:///{os.getlogin()}?host=/var/run/postgresql'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -28,24 +24,7 @@ class User(UserMixin):
 
     def __str__(self) -> str:
         return f"User({str(self.data)})"
-# class User(UserMixin, db.Model):
-#     __tablename__ = 'czlonkowie'
-#     id = db.Column('id_czlonka', db.Integer, primary_key=True)
-#     id_zaimka = db.Column(db.Integer)
-#     nazwa_uzytkownika = db.Column(db.String(30), unique=True, nullable=False)
-#     email = db.Column(db.String(100), unique=True, nullable=False)
-#     imie = db.Column(db.String(30), nullable=False)
-#     nazwisko = db.Column(db.String(150), nullable=False)
-#     newsletter = db.Column(db.Boolean)
-#     data_dolaczenia = db.Column(db.Date, nullable=False)
-#     password_hash = db.Column(db.String(128), nullable=False)
-    
 
-#     def set_password(self, password):
-#         self.password_hash = generate_password_hash(password)
-
-#     def check_password(self, password):
-#         return check_password_hash(self.password_hash, password)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -56,10 +35,12 @@ def load_user(user_id):
         cur.execute("SELECT * from czlonkowie where id_czlonka = %s", (user_id,))
         user = cur.fetchone()
         conn.commit()
+        if user is not None:
+            return User(user)
     except:
         conn.rollback()
     
-    return user
+    return None
 
 # with app.app_context():
 #     db.create_all()
@@ -134,6 +115,7 @@ def login():
         cur = conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
         password = form.password.data
         username = form.username.data
+        remember = form.remember.data
         user = None
         user_id = None
         try:
@@ -148,9 +130,9 @@ def login():
         print(user_id, user, file=sys.stderr)
         
         # flash('To działa' + str(user), 'success')
-        if user and check_password_hash(user.data['haslo_hash'], form.password.data):
+        if user and check_password_hash(user.data['haslo_hash'], password):
             # flash('To działa', 'danger')
-            login_user(user, remember=form.remember.data)
+            login_user(user, remember=remember)
             return redirect(url_for('dashboard'))
         else:
             flash('Login Unsuccessful. Please check username and password', 'success')
@@ -165,7 +147,7 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return f'Hello, {current_user.nazwa_uzytkownika}!'
+    return f'Hello, {current_user.data['nazwa_uzytkownika']}!'
 
 
 @app.route('/get_statistics', methods=['GET'])
@@ -190,6 +172,10 @@ def get_statistics():
         abort(500, description="Nieudane pobieranie statystyk.")
     finally:
         conn.close()
+
+@app.route('/statistics')
+def statistics():
+    return render_template('html/statistics.html')
 
 @app.route('/register_talk', methods=['GET', 'POST'])
 def register_talk():
