@@ -14,7 +14,7 @@
     <script>
         function getStatistics() {
             $.ajax({
-                url: 'get_statistics.php',
+                url: '/get_statistics',
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
@@ -45,26 +45,3 @@
     </script>
 </body>
 </html>
-<?php
-header('Content-Type: application/json');
-
-$db = pg_connect("host=localhost dbname=your_database user=your_user password=your_password");
-
-if (!$db) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Nieudane połączenie z bazą danych.']);
-    exit;
-}
-
-$result = pg_query($db, 'SELECT id_spolecznosci, nazwa_spolecznosci, (SELECT count(*) FROM get_participants(id_edycji)) as count_participants FROM spolocnosci');
-
-if (!$result) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Nieudane pobieranie statystyk.']);
-    exit;
-}
-
-$data = pg_fetch_all($result);
-
-echo json_encode($data);
-?>
