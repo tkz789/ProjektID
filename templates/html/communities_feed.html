@@ -15,19 +15,19 @@
     {% for community in communities %}
       <form action="{{ url_for('feed') }}" method="get">
         <input type="hidden" name="community_id" value="{{ community[0] }}">
-        <button type="submit">{{ community[1] }}</button>
+        <button class="btn" type="submit">{{ community[1] }}</button>
       </form>
     {% endfor %}
   </div>
   <div>
-    <h2 class="h2_form">Posty</h2>
+    <h2 class="h2_form">Ostatnie posty</h2>
     {% for post in posts %}
       <div>
         <h2>{{ post[6] }}</h2>
         <p>{{ post[7] }}</p>
         <form action="{{ url_for('feed') }}" method="get">
           <input type="hidden" name="community_id" value="{{ post[2] }}">
-          <button type="submit">View community - {{ post[3] }}</button>
+          <button class="btn" type="submit">Odwiedź społeczność - {{ post[3] }}</button>
         </form>
       </div>
     </div>

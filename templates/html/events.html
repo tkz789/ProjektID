@@ -9,9 +9,9 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
-    <h1>Available Editions</h1>
+    <h1>Twoje edycje</h1>
     
-    <h2>Current and Upcoming Editions</h2>
+    <h2>Aktualne i nadchodzące edycje</h2>
     {% if current_future_editions %}
       <ul>
         {% for edition in current_future_editions %}
@@ -24,17 +24,17 @@
         {% endfor %}
       </ul>
     {% else %}
-      <p>No current or upcoming editions available.</p>
+      <p>Brak aktualnie trwających i nadchodzących edycji.</p>
     {% endif %}
     
-    <h2>Past Editions</h2>
+    <h2>Poprzednie edycje</h2>
     {% if past_editions %}
       <ul>
         {% for edition in past_editions %}
           <li>
             <form action="{{ url_for('events') }}" method="get">
               <input type="hidden" name="edition_id" value="{{ edition[0] }}">
-              <button type="submit">{{ edition[1] }} (Edition {{ edition[0] }}): {{ edition[2] }} to {{ edition[3] }}</button>
+              <button class="btn" type="submit">{{ edition[1] }} (Edition {{ edition[0] }}): {{ edition[2] }} to {{ edition[3] }}</button>
             </form>
           </li>
         {% endfor %}
