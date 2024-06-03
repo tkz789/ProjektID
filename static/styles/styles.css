@@ -256,3 +256,42 @@ cursor: pointer;
 		background-color: #333;
 		color: #fff;
 	  }
+	  .event-time{
+		margin: 1vw;
+		font-size: medium;
+		font-family: Roboto, sans-serif;
+		border: solid 2px #011EFF;
+		border-radius: 15%;
+		padding: 5vw;
+
+	  }
+	  
+		
+		.communities { 
+			width: 100%;
+			background-color: #011EFF;
+			margin-bottom: 3vw;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-items: center;
+			border: solid 2px #011EFF;
+			border-radius: 25px;
+			padding: 5vw;
+			text-align: center;
+			gap: 5vw;	}
+		.posts { 
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-items: center;
+			border: solid 2px #011EFF;
+			border-radius: 25px;
+			padding: 5vw;
+			background-color: #f01cf7;
+			text-align: center;
+			gap: 5vw;
+	}
+
+		
+			

@@ -10,12 +10,13 @@
     {% endif %}
     {% endwith %}
 <div class="holly_center_pls_press_f_for_coder">
-    <h2 class="h2_form">Generated Badges</h1>
+    <h2 class="h2_form">Generowane identyfikatory</h1>
+        <div class=""></div>
     <table border="1">
         <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Badge Text</th>
+            <th>Imię/th>
+            <th>Nazwisko</th>
+            <th>Tekst</th>
         </tr>
         {% for badge in badges %}
         <tr>
@@ -26,7 +27,7 @@
         {% endfor %}
     </table>
     <br>
-    <a href="{{ url_for('index') }}">Generate more badges</a>
+    <a class="btn" href="{{ url_for('index') }}">Wygeneruj wiecej identyfikatorów</a>
 </div>
 <a class="btn" href="{{ url_for('home') }}">Powrót</a>
 {% endblock %}
