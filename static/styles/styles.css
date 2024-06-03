@@ -306,3 +306,6 @@ cursor: pointer;
 	.smaller{
 		font-size: 3vw;
 	}
+	.bigger{
+		font-size: 8vw;
+	}

@@ -9,29 +9,32 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
-  <body>
-    <h1>Edition {{ edition_details[0] }}: {{ edition_details[1] }}</h1>
+ <div class="holly_center_pls_press_f_for_coder">
+  <div class="form_regist">
+    <h1 class="h2_form">Edition {{ edition_details[0] }}: {{ edition_details[1] }}</h1>
+    <div class="holly_center_pls_press_f_for_coder">
     <p>Start Date: {{ edition_details[2] }}</p>
     <p>End Date: {{ edition_details[3] }}</p>
-
-    <form action="{{ url_for('events') }}" method="get">
-      <button class="btn"type="submit">Wróć do wyboru edycji</button>
-    </form>
-    
-    <h2>Timetable</h2>
+  </div>
+  
+  </div>
+  <form action="{{ url_for('events') }}" method="get">
+    <button class="btn"type="submit">Wróć do wyboru edycji</button>
+  </form>
+    <h1 class="h2_form bigger">Timetable</h1>
     {% for date, events in timetable.items() %}
-      <h3>{{ date }}</h3>
+      <h3 class="h2_form ">{{ date }}</h3>
       {% if events %}
-        <ul>
+        <ul class="event-time">
           {% for event in events %}
             <li>{{ event[1] }} Temat: {{ event[2] }}, prowadzący {{ event[4] }}</li>
           {% endfor %}
         </ul>
       {% else %}
-        <p>Brak zaplanowanych prelekcji.</p>
+        <p class="event-time">Brak zaplanowanych prelekcji.</p>
       {% endif %}
     {% endfor %}
   </div>
-  </div>
+ 
   <a class="btn" href="{{ url_for('home') }}">Powrót</a>
   {% endblock %}
