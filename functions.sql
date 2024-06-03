@@ -62,7 +62,36 @@ id_posta_nad integer, id_spolecznosci integer, id_czlonka integer, data_dodania 
 as $$
 begin
 
-return query select * from posty p where p.id_posta_nad is null and p.id_spolecznosci = community_id; 
+return query select * from posty p where p.id_posta_nad is null and p.id_spolecznosci = community_id order by data_dodania desc; 
+end;
+$$ language plpgsql;
+
+create or replace function get_user_posts_with_names(user_id integer) 
+returns table(id_posta integer, id_posta_nad integer, id_spolecznosci integer, nazwa varchar, id_czlonka integer, data_dodania date, tytul varchar(100), tresc varchar(1000)) as $$
+begin
+    return query 
+    select p.id_posta, p.id_posta_nad, p.id_spolecznosci, sp.nazwa, p.id_czlonka, p.data_dodania, p.tytul, p.tresc 
+    from posty p 
+    join spolecznosci sp on p.id_spolecznosci = sp.id_spolecznosci 
+    where p.id_posta_nad is null 
+    and exists (
+        select 1 
+        from czlonkowie_spolecznosci cs 
+        where cs.id_czlonka = user_id 
+        and cs.id_spolecznosci = p.id_spolecznosci
+    ) 
+    order by p.data_dodania desc;
+end;
+$$ language plpgsql;
+
+create or replace function get_communities_with_names(member_id int) 
+returns table(id_spolecznosci integer, nazwa varchar) as $$
+begin
+    return query 
+    select distinct s.id_spolecznosci, sp.nazwa 
+    from czlonkowie_spolecznosci s 
+    join spolecznosci sp on s.id_spolecznosci = sp.id_spolecznosci 
+    where s.id_czlonka = member_id;
 end;
 $$ language plpgsql;
 
@@ -140,6 +169,18 @@ create or replace function get_communities(member_id int) returns table (id_spol
 begin
 return query
 select distinct s.id_spolecznosci from czlonkowie_spolecznosci s where s.id_czlonka = member_id;
+end; 
+$$ language plpgsql;
+
+create or replace function get_editions(member_id int) 
+returns table (id_edycji integer, nazwa varchar, data_rozpoczecia date, data_zakonczenia date) as $$
+begin
+return query
+select e.id_edycji, w.nazwa, e.data_rozpoczecia, e.data_zakonczenia 
+from czlonkowie_edycje s 
+join edycje e on s.id_edycji = e.id_edycji 
+join wydarzenia w on e.id_wydarzenia = w.id_wydarzenia 
+where s.id_czlonka = member_id;
 end; 
 $$ language plpgsql;
 
@@ -297,14 +338,6 @@ begin
 end;
 $$ language plpgsql;
 
-CREATE TRIGGER rejestracja BEFORE INSERT ON czlonkowie
-FOR EACH ROW EXECUTE PROCEDURE register_trigger();
-
-CREATE TRIGGER posty BEFORE INSERT ON posty
-FOR EACH ROW EXECUTE PROCEDURE post_trigger();
-
-CREATE TRIGGER wolo BEFORE INSERT ON wolontariusze
-FOR EACH ROW EXECUTE PROCEDURE volo_trigger();
 
 create or replace function archive() returns void as $$
 declare 
