@@ -292,6 +292,11 @@ cursor: pointer;
 			text-align: center;
 			gap: 5vw;
 	}
-
-		
-			
+	.awoid_gap{
+		gap: 0vw;
+	}
+	.post_w_h{
+		width: 70vw;
+    height: 35vw;
+	}	
+	

@@ -10,17 +10,20 @@
     {% endif %}
     {% endwith %}
     <div class="holly_center_pls_press_f_for_coder">
-    <h1>{{ post[5] }}</h1>
+      <div class="holly_center_pls_press_f_for_coder">
+        <form action="/" method="get">
+          <button class="btn" type="submit">Back to Communities</button>
+        </form>
+        <form action="{{ url_for('feed') }}" method="get">
+          <input type="hidden" name="community_id" value="{{ community_id }}">
+          <button class="btn" type="submit">Back to Feed</button>
+        </form>
+      </div>
+      <div class="posts awoid_gap post_w_h">
+    <h1 class="h2_form">{{ post[5] }}</h1>
     <p>{{ post[6] }}</p>
-    <p><small>Posted by member ID {{ post[3] }} on {{ post[4] }}</small></p>
-
-    <form action="/" method="get">
-      <button type="submit">Back to Communities</button>
-    </form>
-    <form action="{{ url_for('feed') }}" method="get">
-      <input type="hidden" name="community_id" value="{{ community_id }}">
-      <button type="submit">Back to Feed</button>
-    </form>
+    <p><small>Udostępnione member ID {{ post[3] }} on {{ post[4] }}</small></p>
+  </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -32,7 +35,7 @@
       {% endif %}
     {% endwith %}
 
-    <form action="{{ url_for('add_post') }}" method="post">
+    <form class="form_regist" action="{{ url_for('add_post') }}" method="post">
       <input type="hidden" name="community_id" value="{{ community_id }}">
       <input type="hidden" name="parent_post_id" value="{{ post[0] }}">
       <div>
@@ -43,23 +46,26 @@
         <label for="content">Content:</label>
         <textarea id="content" name="content" required></textarea>
       </div>
-      <button type="submit">Reply to Post</button>
+      <button class="btn" type="submit">Reply to Post</button>
     </form>
 
     {% if replies %}
-      <h2>Replies</h2>
+    <br>
+      <h2 class="h2_form">Replies:</h2>
       <ul>
         {% for reply in replies %}
-          <li>
+          <li class="posts awoid_gap">
+            <div class="posts">
             <h3>{{ reply[5] }}</h3>
             <p>{{ reply[6] }}</p>
             <p><small>Posted by member ID {{ reply[3] }} on {{ reply[4] }}</small></p>
             <form action="{{ url_for('feed') }}" method="get">
               <input type="hidden" name="community_id" value="{{ community_id }}">
               <input type="hidden" name="post_id" value="{{ reply[0] }}">
-              <button type="submit">View Post</button>
+              <button class="btn" type="submit">View Post</button>
             </form>
-            <form action="{{ url_for('add_post') }}" method="post">
+          </div>
+            <form class="form_regist"  action="{{ url_for('add_post') }}" method="post">
               <input type="hidden" name="community_id" value="{{ community_id }}">
               <input type="hidden" name="parent_post_id" value="{{ reply[0] }}">
               <div>
@@ -70,7 +76,7 @@
                 <label for="content">Content:</label>
                 <textarea id="content" name="content" required></textarea>
               </div>
-              <button type="submit">Reply to this Reply</button>
+              <button class="btn" type="submit">Reply to this Reply</button>
             </form>
           </li>
         {% endfor %}
@@ -79,6 +85,5 @@
       <p>No replies available for this post.</p>
     {% endif %}
     </div>
-  </div>
   <a class="btn" href="{{ url_for('home') }}">Powrót</a>
   {% endblock %}
