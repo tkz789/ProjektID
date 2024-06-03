@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Edition Details</title>
+  </head>
+  <body>
+    <h1>Edition {{ edition_details[0] }}: {{ edition_details[1] }}</h1>
+    <p>Start Date: {{ edition_details[2] }}</p>
+    <p>End Date: {{ edition_details[3] }}</p>
+
+    <form action="{{ url_for('events') }}" method="get">
+      <button type="submit">Back to Editions</button>
+    </form>
+    
+    <h2>Timetable</h2>
+    {% for date, events in timetable.items() %}
+      <h3>{{ date }}</h3>
+      {% if events %}
+        <ul>
+          {% for event in events %}
+            <li>{{ event[1] }} by {{ event[2] }} at {{ event[3] }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No events scheduled.</p>
+      {% endif %}
+    {% endfor %}
+  </body>
+</html>
