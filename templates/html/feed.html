@@ -25,7 +25,7 @@
       <button class="btn" type="submit">Wstaw post</button>
     </form>
    
-    <form action="/" method="get">
+    <form action="{{ url_for('dashboard') }}" method="get">
       <button class="btn" type="submit">Powrót</button>
     </form>
     <br>
@@ -61,7 +61,7 @@
     {% endif %}
     </div>
   </div>
-  <a class="btn" href="{{ url_for('home') }}">Powrót</a>
+  <a class="btn" href="{{ url_for('dashboard') }}">Powrót</a>
   {% endblock %}
 
   

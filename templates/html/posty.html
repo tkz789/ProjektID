@@ -12,17 +12,17 @@
     <div class="holly_center_pls_press_f_for_coder">
       <div class="holly_center_pls_press_f_for_coder">
         <form action="/" method="get">
-          <button class="btn" type="submit">Back to Communities</button>
+          <button class="btn" type="submit">Powrót do społeczności</button>
         </form>
         <form action="{{ url_for('feed') }}" method="get">
           <input type="hidden" name="community_id" value="{{ community_id }}">
-          <button class="btn" type="submit">Back to Feed</button>
+          <button class="btn" type="submit">Powrót do feedu</button>
         </form>
       </div>
       <div class="posts awoid_gap post_w_h">
     <h1 class="h2_form">{{ post[5] }}</h1>
     <p>{{ post[6] }}</p>
-    <p><small>Udostępnione member ID {{ post[3] }} on {{ post[4] }}</small></p>
+    <p><small>Udostępnione przez uzytkownika o ID {{ post[3] }} dnia {{ post[4] }}</small></p>
   </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -39,30 +39,30 @@
       <input type="hidden" name="community_id" value="{{ community_id }}">
       <input type="hidden" name="parent_post_id" value="{{ post[0] }}">
       <div>
-        <label for="title">Title:</label>
+        <label for="title">Tytuł:</label>
         <input type="text" id="title" name="title" required>
       </div>
       <div>
-        <label for="content">Content:</label>
+        <label for="content">Treść:</label>
         <textarea id="content" name="content" required></textarea>
       </div>
-      <button class="btn" type="submit">Reply to Post</button>
+      <button class="btn" type="submit">Odpowiedz do posta</button>
     </form>
 
     {% if replies %}
     <br>
-      <h2 class="h2_form">Replies:</h2>
+      <h2 class="h2_form">Odpowiedzi:</h2>
       <ul>
         {% for reply in replies %}
           <li class="posts awoid_gap">
             <div class="posts">
             <h3>{{ reply[5] }}</h3>
             <p>{{ reply[6] }}</p>
-            <p><small>Posted by member ID {{ reply[3] }} on {{ reply[4] }}</small></p>
+            <p><small>Udostępnione przez uzytkownika o ID {{ reply[3] }} dnia {{ reply[4] }}</small></p>
             <form action="{{ url_for('feed') }}" method="get">
               <input type="hidden" name="community_id" value="{{ community_id }}">
               <input type="hidden" name="post_id" value="{{ reply[0] }}">
-              <button class="btn" type="submit">View Post</button>
+              <button class="btn" type="submit">Wyświetl post</button>
             </form>
           </div>
             <form class="form_regist"  action="{{ url_for('add_post') }}" method="post">
@@ -76,14 +76,15 @@
                 <label for="content">Content:</label>
                 <textarea id="content" name="content" required></textarea>
               </div>
-              <button class="btn" type="submit">Reply to this Reply</button>
+              <button class="btn" type="submit">Odpowiedz</button>
             </form>
           </li>
         {% endfor %}
       </ul>
     {% else %}
-      <p>No replies available for this post.</p>
+    <br>    <br>
+      <p>Brak dostępnych odpowiedzi. Napisz komentarz</p>
     {% endif %}
     </div>
-  <a class="btn" href="{{ url_for('home') }}">Powrót</a>
+  <a class="btn" href="{{ url_for('dashboard') }}">Powrót</a>
   {% endblock %}

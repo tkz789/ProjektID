@@ -11,17 +11,17 @@
     {% endwith %}
  <div class="holly_center_pls_press_f_for_coder">
   <div class="form_regist">
-    <h1 class="h2_form">Edition {{ edition_details[0] }}: {{ edition_details[1] }}</h1>
+    <h1 class="h2_form"> {{ edition_details[0] }} Edycja: {{ edition_details[1] }}</h1>
     <div class="holly_center_pls_press_f_for_coder">
-    <p>Start Date: {{ edition_details[2] }}</p>
-    <p>End Date: {{ edition_details[3] }}</p>
+    <p>Początek wydarzenia: {{ edition_details[2] }}</p>
+    <p>Koniec wydarzenia: {{ edition_details[3] }}</p>
   </div>
   
   </div>
   <form action="{{ url_for('events') }}" method="get">
     <button class="btn"type="submit">Wróć do wyboru edycji</button>
   </form>
-    <h1 class="h2_form bigger">Timetable</h1>
+    <h1 class="h2_form bigger">Prelekcje</h1>
     {% for date, events in timetable.items() %}
       <h3 class="h2_form ">{{ date }}</h3>
       {% if events %}
@@ -36,5 +36,5 @@
     {% endfor %}
   </div>
  
-  <a class="btn" href="{{ url_for('home') }}">Powrót</a>
+  <a class="btn" href="{{ url_for('dashboard') }}">Powrót</a>
   {% endblock %}

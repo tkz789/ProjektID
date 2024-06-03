@@ -11,23 +11,26 @@
     {% endwith %}
     <div class="holly_center_pls_press_f_for_coder">
     <h2>Witaj organizatorze!</h2>
-    <a class="btn" href="{{ url_for('register_talk') }}">Register Talk</a><br>
-    <a class="btn" href="{{ url_for('add_speaker') }}">Add Speaker to Talk</a>
-    <h1>Generate Badgess</h1>
+    <a class="btn" href="{{ url_for('register_talk') }}">Zarejestruj prelekcje</a><br>
+    <a class="btn" href="{{ url_for('add_speaker') }}">Dodaj prelegenta do prelekcji</a>
+    <br>
+    <div class="form_regist">
+    <h1>Wygeneruj identyfikatory</h1>
     <form action="/admin_panel" method="post">
         <label for="edit_id">Id edycji:</label>
         <input type="text" id="edit_id" name="edit_id" required>
         <br>
-        <label for="badge_type">Select badge type:</label>
+        <label for="badge_type">Wybierz rodzaj identyfikatora:</label>
         <select id="badge_type" name="badge_type">
-            <option value="attendees">Attendees</option>
-            <option value="volunteers">Volunteers</option>
-            <option value="organisers">Organisers</option>
-            <option value="speakers">Speakers</option>
+            <option value="attendees">Czlonkowie</option>
+            <option value="volunteers">Wolontariusze</option>
+            <option value="organisers">Organizatorzy</option>
+            <option value="speakers">Speakerzy</option>
         </select>
         <br>
-        <input type="submit" value="Generate Badges">
+        <input class="btn" type="submit" value="Wygeneruj identyfikatory">
     </form>
+    </div>
   </div>
   <a class="btn" href="{{ url_for('home') }}">Powrót</a>
   {% endblock %}
