@@ -228,6 +228,7 @@ cursor: pointer;
 	font-size: 05vw;
 	margin-bottom: 2vw;
 	word-spacing: 1vw;
+	text-align: center;
 	}
 	.holly_center_pls_press_f_for_coder{
 		display: grid;
@@ -299,4 +300,9 @@ cursor: pointer;
 		width: 70vw;
     height: 35vw;
 	}	
-	
+	.avoid_margin{
+		margin-bottom: 2vw;;
+	}
+	.smaller{
+		font-size: 3vw;
+	}
