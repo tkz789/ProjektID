@@ -147,7 +147,7 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('html/dasboard.html')
+    return render_template('html/dashboard.html', user = current_user.data['nazwa_uzytkownika'] )
 
 
 @app.route('/get_statistics', methods=['GET'])
@@ -391,6 +391,7 @@ def get_editions(member_id):
     cur.execute('SELECT * FROM get_editions(%s)', (member_id,))
     editions = cur.fetchall()
     
+
     cur.close()
     conn.close()
     
