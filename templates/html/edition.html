@@ -9,27 +9,26 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
-    <div class="holly_center_pls_press_f_for_coder">
-    <h2 class="h2_form">Edition {{ edition_details[0] }}: {{ edition_details[1] }}</h1>
-   <div> 
+  <body>
+    <h1>Edition {{ edition_details[0] }}: {{ edition_details[1] }}</h1>
     <p>Start Date: {{ edition_details[2] }}</p>
-    <p>End Date: {{ edition_details[3] }}</p></div>
-    
+    <p>End Date: {{ edition_details[3] }}</p>
+
     <form action="{{ url_for('events') }}" method="get">
-      <button type="submit">Back to Editions</button>
+      <button class="btn"type="submit">Wróć do wyboru edycji</button>
     </form>
-    <div class="event-time">
+    
     <h2>Timetable</h2>
     {% for date, events in timetable.items() %}
       <h3>{{ date }}</h3>
       {% if events %}
         <ul>
           {% for event in events %}
-            <li>{{ event[1] }} by {{ event[2] }} at {{ event[3] }}</li>
+            <li>{{ event[1] }} Temat: {{ event[2] }}, prowadzący {{ event[4] }}</li>
           {% endfor %}
         </ul>
       {% else %}
-        <p>No events scheduled.</p>
+        <p>Brak zaplanowanych prelekcji.</p>
       {% endif %}
     {% endfor %}
   </div>

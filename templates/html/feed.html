@@ -10,23 +10,23 @@
     {% endif %}
     {% endwith %}
     <div class="holly_center_pls_press_f_for_coder">
-    <h1>Posts for Community ID: {{ community_id }}</h1>
+    <h1>Posty dla społeczności o ID: {{ community_id }}</h1>
 
     <form action="{{ url_for('add_post') }}" method="post">
       <input type="hidden" name="community_id" value="{{ community_id }}">
       <div>
-        <label for="title">Title:</label>
+        <label for="title">Tytuł:</label>
         <input type="text" id="title" name="title" required>
       </div>
       <div>
-        <label for="content">Content:</label>
+        <label for="content">Treść:</label>
         <textarea id="content" name="content" required></textarea>
       </div>
-      <button type="submit">Add Post</button>
+      <button class="btn" type="submit">Wstaw post</button>
     </form>
     
     <form action="/" method="get">
-      <button type="submit">Back to Communities</button>
+      <button class="btn" type="submit">Powrót</button>
     </form>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -45,19 +45,23 @@
           <li>
             <h2>{{ post[5] }}</h2>
             <p>{{ post[6] }}</p>
-            <p><small>Posted by member ID {{ post[3] }} on {{ post[4] }}</small></p>
+            <p><small>Post utworzony przez użytkownika o ID {{ post[3] }} dnia {{ post[4] }}</small></p>
             <form action="{{ url_for('feed') }}" method="get">
               <input type="hidden" name="community_id" value="{{ community_id }}">
               <input type="hidden" name="post_id" value="{{ post[0] }}">
-              <button type="submit">View Post</button>
+              <button class="btn" type="submit">Zobacz odpowiedzi</button>
             </form>
           </li>
         {% endfor %}
       </ul>
     {% else %}
-      <p>No posts available for this community.</p>
+      <p>Brak dostępnych postów. Napisz coś</p>
     {% endif %}
     </div>
   </div>
   <a class="btn" href="{{ url_for('home') }}">Powrót</a>
   {% endblock %}
+
+  
+
+  
