@@ -1,10 +1,15 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Post Details</title>
-  </head>
-  <body>
+{% extends "html/index.html" %}
+{% block title %}Posty społeczności{% endblock %}
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="holly_center_pls_press_f_for_coder">
     <h1>{{ post[5] }}</h1>
     <p>{{ post[6] }}</p>
     <p><small>Posted by member ID {{ post[3] }} on {{ post[4] }}</small></p>
@@ -73,5 +78,7 @@
     {% else %}
       <p>No replies available for this post.</p>
     {% endif %}
-  </body>
-</html>
+    </div>
+  </div>
+  <a class="btn" href="{{ url_for('home') }}">Powrót</a>
+  {% endblock %}
