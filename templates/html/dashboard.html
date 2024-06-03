@@ -1,0 +1,20 @@
+{% extends "html/index.html" %}
+{% block title %}Rejestracja  rozmowy{% endblock %}
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="holly_center_pls_press_f_for_coder">
+    <h2>Witaj {{ user }}</h2>
+    <br>
+    <a class="btn" href="{{ url_for('admin_panel') }}">Panel administratora</a><br>
+    <a class="btn" href="{{ url_for('feed') }}">Feed</a>
+    <a class="btn" href="{{ url_for('events') }}">Wydarzenia</a>
+  </div>
+</div>
+  {% endblock %}
