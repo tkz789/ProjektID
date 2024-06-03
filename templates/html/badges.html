@@ -1,12 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generated Badges</title>
-</head>
-<body>
-    <h1>Generated Badges</h1>
+{% extends "html/index.html" %}
+{% block title %}Posty społeczności{% endblock %}
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+<div class="holly_center_pls_press_f_for_coder">
+    <h2 class="h2_form">Generated Badges</h1>
     <table border="1">
         <tr>
             <th>First Name</th>
@@ -23,5 +27,6 @@
     </table>
     <br>
     <a href="{{ url_for('index') }}">Generate more badges</a>
-</body>
-</html>
+</div>
+<a class="btn" href="{{ url_for('home') }}">Powrót</a>
+{% endblock %}

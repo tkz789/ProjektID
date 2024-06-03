@@ -1,18 +1,26 @@
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Communities and Posts</title>
-  </head>
-  <body>
-    <h1>Communities</h1>
+{% extends "html/index.html" %}
+{% block title %}Posty społeczności{% endblock %}
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="holly_center_pls_press_f_for_coder">
+      <div>
+    <h2 class="h2_form">Społeczność</h2>
     {% for community in communities %}
       <form action="{{ url_for('feed') }}" method="get">
         <input type="hidden" name="community_id" value="{{ community[0] }}">
         <button type="submit">{{ community[1] }}</button>
       </form>
     {% endfor %}
-    
-    <h1>Posts</h1>
+  </div>
+  <div>
+    <h2 class="h2_form">Posty</h2>
     {% for post in posts %}
       <div>
         <h2>{{ post[6] }}</h2>
@@ -22,6 +30,8 @@
           <button type="submit">View community - {{ post[3] }}</button>
         </form>
       </div>
+    </div>
     {% endfor %}
-  </body>
-</html>
+  </div>
+  <a class="btn" href="{{ url_for('home') }}">Powrót</a>
+  {% endblock %}

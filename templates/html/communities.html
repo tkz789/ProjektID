@@ -1,10 +1,14 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Communities</title>
-  </head>
-  <body>
+{% extends "html/index.html" %}
+{% block title %}Posty społeczności{% endblock %}
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
     <h1>Communities</h1>
     
     {% if communities %}
@@ -21,5 +25,6 @@
     {% else %}
       <p>No communities available for this user.</p>
     {% endif %}
-  </body>
-</html>
+  </div>
+  <a class="btn" href="{{ url_for('home') }}">Powrót</a>
+  {% endblock %}
