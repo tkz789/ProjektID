@@ -1,0 +1,69 @@
+{% extends "html/index.html" %}
+{% block title %}Posty społeczności{% endblock %}
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="holly_center_pls_press_f_for_coder">
+    <h1 class="h2_form">Posty dla spolecznosci o ID: {{ community_id }}</h1>
+
+    <form class="form_regist" action="{{ url_for('add_post') }}" method="post">
+      <input type="hidden" name="community_id" value="{{ community_id }}">
+      <div>
+        <label for="title">Tytuł:</label>
+        <input type="text" id="title" name="title" required>
+      </div>
+      <div>
+        <label for="content">Treść:</label>
+        <textarea id="content" name="content" required></textarea>
+      </div>
+      <button class="btn" type="submit">Wstaw post</button>
+    </form>
+   
+    <form action="{{ url_for('dashboard') }}" method="get">
+      <button class="btn" type="submit">Powrót</button>
+    </form>
+    <br>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    
+    {% if posts %}
+      <ul>
+        {% for post in posts %}
+          <li class="posts awoid_gap">
+            <h2>{{ post[5] }}</h2>
+            <p>{{ post[6] }}</p>
+            <p><small>Post utworzony przez użytkownika o ID {{ post[3] }} dnia {{ post[4] }}</small></p>
+            <form action="{{ url_for('feed') }}" method="get">
+              <input type="hidden" name="community_id" value="{{ community_id }}">
+              <input type="hidden" name="post_id" value="{{ post[0] }}">
+              <button class="btn" type="submit">Zobacz odpowiedzi</button>
+            </form>
+          </li>
+          <br>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Brak dostępnych postów. Napisz coś</p>
+    {% endif %}
+    </div>
+  </div>
+  <a class="btn" href="{{ url_for('dashboard') }}">Powrót</a>
+  {% endblock %}
+
+  
+
+  

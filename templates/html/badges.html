@@ -1,0 +1,33 @@
+{% extends "html/index.html" %}
+{% block title %}Posty społeczności{% endblock %}
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+<div class="holly_center_pls_press_f_for_coder">
+    <h2 class="h2_form">Generowane identyfikatory</h1>
+        <div class=""></div>
+    <table border="1">
+        <tr>
+            <th>Imię/th>
+            <th>Nazwisko</th>
+            <th>Tekst</th>
+        </tr>
+        {% for badge in badges %}
+        <tr>
+            <td>{{ badge[0] }}</td>
+            <td>{{ badge[1] }}</td>
+            <td>{{ badge[2] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <a class="btn" href="{{ url_for('index') }}">Wygeneruj wiecej identyfikatorów</a>
+</div>
+<a class="btn" href="{{ url_for('home') }}">Powrót</a>
+{% endblock %}

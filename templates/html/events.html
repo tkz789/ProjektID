@@ -1,0 +1,50 @@
+{% extends "html/index.html" %}
+{% block title %}Posty społeczności{% endblock %}
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="holly_center_pls_press_f_for_coder">
+    <h1 class="h2_form">Twoje edycje</h1>
+    
+    <h2 class="h2_form smaller">Aktualne i nadchodzace edycje</h2>
+    {% if current_future_editions %}
+      <ul>
+        {% for edition in current_future_editions %}
+          <li>
+            <form class="form_regist"  action="{{ url_for('events') }}" method="get">
+              <input type="hidden" name="edition_id" value="{{ edition[0] }}">
+              <button type="submit">{{ edition[1] }} (Edition {{ edition[0] }}): {{ edition[2] }} to {{ edition[3] }}</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="form_regist avoid_margin">Brak aktualnie trwających i nadchodzących edycji.</p>
+    {% endif %}
+    
+    <h2 class="h2_form smaller">Poprzednie edycje</h2>
+    <br>
+    {% if past_editions %}
+      <ul class="form_regist">
+        {% for edition in past_editions %}
+          <li>
+            <form class="" action="{{ url_for('events') }}" method="get">
+              <input type="hidden" name="edition_id" value="{{ edition[0] }}">
+              <button class="btn" type="submit">{{ edition[1] }} (Edition {{ edition[0] }}): {{ edition[2] }} to {{ edition[3] }}</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="form_regist">No past editions available.</p>
+    {% endif %}
+</div>
+<a class="btn" href="{{ url_for('dashboard') }}">Powrót</a>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "html/index.html" %}
+{% block title %}Posty społeczności{% endblock %}
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="holly_center_pls_press_f_for_coder parent">
+      <div class="communities">
+    <h2 class="h2_form">Spolecznosci</h2>
+    {% for community in communities %}
+      <form action="{{ url_for('feed') }}" method="get">
+        <input type="hidden" name="community_id" value="{{ community[0] }}">
+        <button class="btn" type="submit">{{ community[1] }}</button>
+      </form>
+    {% endfor %}
+  </div>
+  <div>
+    <h2 class="h2_form">Posty</h2>
+    {% for post in posts %}
+      <div class="posts">
+        <form action="{{ url_for('feed') }}" method="get">
+          <button class="btn" type="submit">Zobacz społeczność - {{ post[3] }}</button>
+          <input type="hidden" name="community_id" value="{{ post[2] }}">
+        </form>
+        <h2>{{ post[6] }}</h2>
+        <p>{{ post[7] }}</p>
+       
+      
+      </div>
+    </div>
+    <br>
+    {% endfor %}
+  </div>
+  <a class="btn" href="{{ url_for('dashboard') }}">Powrót</a>
+  {% endblock %}
