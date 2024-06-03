@@ -6,7 +6,7 @@ import os
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import RegistrationForm, LoginForm
-from datetime import date
+from datetime import date, timedelta
 
 app = Flask(__name__)
 
@@ -147,7 +147,7 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return f'Hello, {current_user.data['nazwa_uzytkownika']}!'
+    return render_template('html/dasboard.html')
 
 
 @app.route('/get_statistics', methods=['GET'])
@@ -177,54 +177,115 @@ def get_statistics():
 def statistics():
     return render_template('html/statistics.html')
 
+
 def get_posts(community_id):
-    
     conn = get_db_connection()
     cur = conn.cursor()
-    # Execute the function
+    
     cur.execute('SELECT * FROM get_posts(%s)', (community_id,))
     posts = cur.fetchall()
     
-    # Close the connection
     cur.close()
     conn.close()
     
     return posts
 
-@app.route('/feed')
-def feed():
-    community_id = request.args.get('community_id')
-    if not community_id:
-        user_id = current_user.data['id_czlonka']
-        communities = get_communities(user_id)
-        return render_template('html/communities.html', communities=communities)
-
-    try:
-        community_id = int(community_id)
-    except ValueError:
-        return "Invalid Community ID", 400
-    
-    posts = get_posts(community_id)
-    
-    return render_template('html/feed.html', posts=posts, community_id=community_id)
-
-
-def get_communities(member_id):
+def get_post(post_id):
     conn = get_db_connection()
     cur = conn.cursor()
     
-    cur.execute('SELECT id_spolecznosci FROM get_communities(%s)', (member_id,))
-    community_ids = cur.fetchall()
+    cur.execute('SELECT * FROM posty WHERE id_posta = %s', (post_id,))
+    post = cur.fetchone()
     
-    communities = []
-    for community_id in community_ids:
-        cur.execute('SELECT id_spolecznosci, nazwa FROM spolecznosci WHERE id_spolecznosci = %s', (community_id,))
-        communities.append(cur.fetchone())
+    cur.close()
+    conn.close()
+    
+    return post
+
+def get_communities_with_names(member_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM get_communities_with_names(%s)', (member_id,))
+    communities = cur.fetchall()
     
     cur.close()
     conn.close()
     
     return communities
+
+def get_user_posts_with_names(user_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM get_user_posts_with_names(%s) LIMIT 25', (user_id,))
+    posts = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
+    return posts
+
+def get_replies(parent_post_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM get_replies(%s)', (parent_post_id,))
+    replies = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
+    return replies
+
+@app.route('/feed')
+def feed():
+    community_id = request.args.get('community_id')
+    post_id = request.args.get('post_id')
+    user_id = current_user.data['id_czlonka']
+
+    if not community_id:
+        communities = get_communities_with_names(user_id)
+        posts = get_user_posts_with_names(user_id)
+        return render_template('html/communities_feed.html', communities=communities, posts=posts)
+
+
+    if post_id:
+        post = get_post(post_id)
+        replies = get_replies(post_id)
+        return render_template('html/posty.html', post=post, replies=replies, community_id=community_id)
+    else:
+        posts = get_posts(community_id)
+        return render_template('html/feed.html', posts=posts, community_id=community_id)
+
+
+
+@app.route('/add_post', methods=['POST'])
+def add_post():
+    community_id = request.form['community_id']
+    parent_post_id = request.form.get('parent_post_id')
+    title = request.form['title']
+    content = request.form['content']
+    user_id = current_user.data['id_czlonka']
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute('SELECT make_post(%s, %s, %s, %s, %s)', (parent_post_id, community_id, user_id, title, content))
+        conn.commit()
+        flash('Post created successfully!', 'success')
+    except Exception as e:
+        conn.rollback()
+        flash(str(e), 'danger')
+
+    cur.close()
+    conn.close()
+
+    if parent_post_id:
+        return redirect(url_for('feed', community_id=community_id, post_id=parent_post_id))
+    else:
+        return redirect(url_for('feed', community_id=community_id))
 
 @app.route('/register_talk', methods=['GET', 'POST'])
 def register_talk():
@@ -320,6 +381,83 @@ def generate_badges(edit_id, badge_type):
     conn.close()
 
     return badges
+
+
+
+def get_editions(member_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM get_editions(%s)', (member_id,))
+    editions = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
+    return editions
+
+def get_edition_details(edition_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    query = """
+    SELECT e.nr_edycji, w.nazwa, e.data_rozpoczecia, e.data_zakonczenia 
+    FROM edycje e 
+    JOIN wydarzenia w ON w.id_wydarzenia = e.id_wydarzenia 
+    WHERE e.id_edycji = %s
+    """
+    cur.execute(query, (edition_id,))
+    edition_details = cur.fetchone()
+    
+    cur.close()
+    conn.close()
+    
+    return edition_details
+
+def get_timetable(edition_id, event_date):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM get_timestable(%s, %s)', (edition_id, event_date))
+    timetable = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
+    return timetable
+
+@app.route('/events')
+def events():
+    edition_id = request.args.get('edition_id')
+    
+    if edition_id:
+        try:
+            edition_id = int(edition_id)
+        except ValueError:
+            return "Invalid Edition ID", 400
+        
+        edition_details = get_edition_details(edition_id)
+        if not edition_details:
+            return "Edition not found", 404
+        
+        start_date, end_date = edition_details[2], edition_details[3]
+        current_date = start_date
+        
+        timetable = {}
+        while current_date <= end_date:
+            timetable[current_date] = get_timetable(edition_id, current_date)
+            current_date += timedelta(days=1)
+        
+        return render_template('html/edition.html', edition_details=edition_details, timetable=timetable, edition_id=edition_id)
+    else:
+        user_id = current_user.data['id_czlonka']
+        editions = get_editions(user_id)
+        current_date = date.today()
+        current_future_editions = [edition for edition in editions if edition[2] >= current_date]
+        past_editions = [edition for edition in editions if edition[2] < current_date]
+        
+        return render_template('html/events.html', current_future_editions=current_future_editions, past_editions=past_editions)
+
     
 if __name__ == '__main__':
     app.run(debug=True)
