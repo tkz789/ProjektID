@@ -63,7 +63,7 @@ def index():
 
 @app.route("/aboutus")
 def aboutus():
-    return render_template('html/aboutus.html')
+    return render_template('html/aboutus.html', user = current_user)
 
 @app.route("/home")
 def home():
@@ -72,7 +72,7 @@ def home():
     cur.execute("SELECT nazwa from spolecznosci")
     spolecznosci = cur.fetchall()
     conn.commit()
-    return render_template('html/index.html', spolecznosci=spolecznosci)
+    return render_template('html/index.html', spolecznosci=spolecznosci, user = current_user)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -102,7 +102,7 @@ def register():
         # db.session.add(user)
         # db.session.commit()
         return redirect(url_for('login'))
-    return render_template('html/register.html', form=form)
+    return render_template('html/register.html', form=form, user = current_user)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -136,7 +136,7 @@ def login():
             return redirect(url_for('dashboard'))
         else:
             flash('Login Unsuccessful. Please check username and password', 'success')
-    return render_template('html/login.html', form=form)
+    return render_template('html/login.html', form=form , user = current_user)
 
 @app.route('/logout')
 @login_required
@@ -147,10 +147,11 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('html/dashboard.html', user = current_user.data['nazwa_uzytkownika'] )
+    return render_template('html/dashboard.html', username = current_user.data['nazwa_uzytkownika'] , user = current_user)
 
 
 @app.route('/get_statistics', methods=['GET'])
+@login_required
 def get_statistics():
     conn = get_db_connection()
     if conn is None:
@@ -174,8 +175,9 @@ def get_statistics():
         conn.close()
 
 @app.route('/statistics')
+@login_required
 def statistics():
-    return render_template('html/statistics.html')
+    return render_template('html/statistics.html', user = current_user)
 
 
 def get_posts(community_id):
@@ -239,6 +241,7 @@ def get_replies(parent_post_id):
     return replies
 
 @app.route('/feed')
+@login_required
 def feed():
     community_id = request.args.get('community_id')
     post_id = request.args.get('post_id')
@@ -247,20 +250,21 @@ def feed():
     if not community_id:
         communities = get_communities_with_names(user_id)
         posts = get_user_posts_with_names(user_id)
-        return render_template('html/communities_feed.html', communities=communities, posts=posts)
+        return render_template('html/communities_feed.html', communities=communities, posts=posts, user = current_user)
 
 
     if post_id:
         post = get_post(post_id)
         replies = get_replies(post_id)
-        return render_template('html/posty.html', post=post, replies=replies, community_id=community_id)
+        return render_template('html/posty.html', post=post, replies=replies, community_id=community_id, user = current_user)
     else:
         posts = get_posts(community_id)
-        return render_template('html/feed.html', posts=posts, community_id=community_id)
+        return render_template('html/feed.html', posts=posts, community_id=community_id, user = current_user)
 
 
 
 @app.route('/add_post', methods=['POST'])
+@login_required
 def add_post():
     community_id = request.form['community_id']
     parent_post_id = request.form.get('parent_post_id')
@@ -288,6 +292,7 @@ def add_post():
         return redirect(url_for('feed', community_id=community_id))
 
 @app.route('/register_talk', methods=['GET', 'POST'])
+@login_required
 def register_talk():
     conn = get_db_connection()
     cur = conn.cursor()
@@ -321,9 +326,10 @@ def register_talk():
     cur.close()
     conn.close()
     
-    return render_template('html/register_talk.html', rooms=rooms, speakers=speakers, lengths=lengths)
+    return render_template('html/register_talk.html', rooms=rooms, speakers=speakers, lengths=lengths, user = current_user)
 
 @app.route('/add_speaker', methods=['GET', 'POST'])
+@login_required
 def add_speaker():
     conn = get_db_connection()
     cur = conn.cursor()
@@ -349,11 +355,12 @@ def add_speaker():
     cur.close()
     conn.close()
     
-    return render_template('html/add_speaker.html', speakers=speakers, talks=talks)
+    return render_template('html/add_speaker.html', speakers=speakers, talks=talks, user = current_user)
 
 
 
 @app.route('/admin_panel', methods=['GET', 'POST'])
+@login_required
 def admin_panel():
     if request.method == 'POST':
         edit_id = request.form['edit_id']
@@ -361,7 +368,7 @@ def admin_panel():
         badges = generate_badges(edit_id, badge_type)
         return render_template('html/badges.html', badges=badges)
 
-    return render_template('html/admin_panel.html')
+    return render_template('html/admin_panel.html', user = current_user)
 
 def generate_badges(edit_id, badge_type):
     conn = get_db_connection()
@@ -428,6 +435,7 @@ def get_timetable(edition_id, event_date):
     return timetable
 
 @app.route('/events')
+@login_required
 def events():
     edition_id = request.args.get('edition_id')
     
@@ -449,7 +457,7 @@ def events():
             timetable[current_date] = get_timetable(edition_id, current_date)
             current_date += timedelta(days=1)
         
-        return render_template('html/edition.html', edition_details=edition_details, timetable=timetable, edition_id=edition_id)
+        return render_template('html/edition.html', edition_details=edition_details, timetable=timetable, edition_id=edition_id, user = current_user)
     else:
         user_id = current_user.data['id_czlonka']
         editions = get_editions(user_id)
@@ -457,8 +465,28 @@ def events():
         current_future_editions = [edition for edition in editions if edition[2] >= current_date]
         past_editions = [edition for edition in editions if edition[2] < current_date]
         
-        return render_template('html/events.html', current_future_editions=current_future_editions, past_editions=past_editions)
+        return render_template('html/events.html', current_future_editions=current_future_editions, past_editions=past_editions, user = current_user)
 
+@app.route('/join_community', methods=['GET', 'POST'])
+@login_required
+def join_community():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    if request.method == 'POST':
+        id_spolecznosci = request.form["community_id"]
+        user_id = current_user.get_id()
+        cur.execute("INSERT INTO czlonkowie_spolecznosci(id_czlonka, id_spolecznosci, id_roliq) values (%s, %s, 1)", (user_id, id_spolecznosci) )
+        conn.commit()
+        cur.close()
+        conn.close()
+        return redirect(url_for('dashboard'))
+    
+    
+    cur.execute("""SELECT id_spolecznosci, nazwa from spolecznosci""")
+    spolecznosci = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('html/join_community.html', user=current_user, spolecznosci=spolecznosci)
     
 if __name__ == '__main__':
     app.run(debug=True)
