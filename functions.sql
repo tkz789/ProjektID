@@ -200,6 +200,7 @@ return count;
 end;
 $$ language plpgsql;
 
+
 create or replace function intersects(int1 timestamp, int2 timestamp, len1 interval, len2 interval) returns boolean as $$
 begin
     return (int1 + '00:00:01'::interval, int1 + len1 - '00:00:01'::interval) overlaps (int2 + '00:00:01'::interval, int2+len2 - '00:00:01'::interval);
@@ -290,6 +291,8 @@ begin
 end;
 $$ language plpgsql;
 
+
+
 create or replace function generate_volonteer_badges(edit_id int) returns table(imie varchar(30), nazwisko varchar(150), tekst varchar) as $$
 declare 
 begin
@@ -308,6 +311,7 @@ begin
 end;
 $$ language plpgsql;
 
+
 create or replace function generate_speaker_badges(edit_id int) returns table(imie varchar(30), nazwisko varchar(150), tekst varchar) as $$
 begin
     return query
@@ -316,6 +320,21 @@ begin
     where r.id_prelekcji = p.id_prelekcji and r.id_prelegenta = s.id_prelegenta)) where p.id_edycji = edit_id group by s.id_prelegenta;
     end;
 $$ language plpgsql;
+
+
+create or replace view full_edition_statistics as 
+select e.id_edycji as "id edycji", (select w.nazwa from wydarzenia w where w.id_wydarzenia = e.id_wydarzenia) as "wydarzenie", e.nr_edycji as "numer edycji",
+(select count(*) from generate_attendee_badges(e.id_edycji)) as "liczba uczestników", (select count(*) from generate_organiser_badges(e.id_edycji)) as "liczba organizatorów", 
+(select count(*) from generate_speaker_badges(e.id_edycji)) as "liczba prelegentów", (select count(*) from generate_volonteer_badges(e.id_edycji)) as "liczba wolontariuszy", 
+(select count(*) from prelekcje p where p.id_edycji = e.id_edycji) as "ilość prelekcji", (select count(*) from edycje_sale r where r.id_edycji = e.id_edycji) as "ilość sal"
+from edycje e;
+
+create or replace view full_communities_statistics as
+select s.id_spolecznosci as "id społeczności", s.nazwa as "nazwa", (select count(distinct c.id_czlonka) from czlonkowie_spolecznosci c where c.id_spolecznosci = s.id_spolecznosci) as "ilość członków",
+(select count(*) from wydarzenia_spolecznosci m where m.id_spolecznosci = s.id_spolecznosci) as "ilość współorganizowanych wydarzeń",
+(select count(*) from posty where id_spolecznosci = s.id_spolecznosci) as "ilość postów", (select count(*) from posty where id_spolecznosci = s.id_spolecznosci
+and id_posta_nad is null) as "ilość wątków"
+from spolecznosci s;
 
 create or replace function register_trigger() returns trigger as $$
 begin
@@ -375,3 +394,36 @@ for user_to_archive in select * from czlonkowie loop
 end loop;
 end;
 $$ language plpgsql;
+
+create or replace function prelegent_trigger() returns trigger as $$
+
+begin
+if(new.id_czlonka is not null) then 
+new.imie = (select s.imie from czlonkowie s where s.id_czlonka = new.id_czlonka);
+new.nazwisko = (select s.nazwisko from czlonkowie s where s.id_czlonka = new.id_czlonka);
+end if;
+
+return new;
+end;
+$$ language plpgsql;
+
+create or replace function czlonkowie_trigger() returns trigger as $$
+declare
+k record;
+begin
+for k in (select * from prelegenci where id_czlonka = new.id_czlonka) loop
+    update prelegenci p set id_czlonka = k.id_czlonka where p.id_czlonka = k.id_czlonka;
+end loop;
+return new;
+end;
+$$ language plpgsql;
+
+create trigger czlonkowie_check after update on czlonkowie for each row execute procedure czlonkowie_trigger();
+create trigger prelegenci_check before insert or update on prelegenci for each row execute procedure prelegent_trigger();
+
+
+
+
+
+
+

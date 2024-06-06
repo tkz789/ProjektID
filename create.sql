@@ -38,14 +38,14 @@ CREATE TABLE "edycje" (
   "id_wydarzenia" integer NOT NULL,
   "data_rozpoczecia" date NOT NULL,
   "data_zakonczenia" date NOT NULL,
-  "miejsce" varchar NOT NULL,
+  "miejsce" int not null,
   "podtytul" varchar,
   CHECK ("nr_edycji" > 0)
 );
 
 CREATE TABLE "sale" (
   "id_sali" serial PRIMARY KEY,
-  "adres" varchar(100) NOT NULL,
+  "adres" int NOT NULL,
   "nazwa" varchar(20) NOT NULL,
   "pojemnosc" integer NOT NULL,
   CHECK ("pojemnosc" > 0)
@@ -163,6 +163,15 @@ CREATE TABLE "organizatorzy" (
   UNIQUE("id_czlonka", "id_edycji")
 );
 
+create table "adresy" (
+  "id_adresu" serial primary KEY,
+  "adres" varchar(100) not null
+);
+
+ALTER TABLE "edycje" ADD FOREIGN KEY ("miejsce") REFERENCES "adresy" ("id_adresu");
+
+ALTER TABLE "sale" ADD FOREIGN KEY ("adres") REFERENCES "adresy" ("id_adresu");
+
 ALTER TABLE "organizatorzy" ADD FOREIGN KEY ("id_czlonka") REFERENCES "czlonkowie" ("id_czlonka");
 
 ALTER TABLE "organizatorzy" ADD FOREIGN KEY ("id_edycji") REFERENCES "edycje" ("id_edycji");
@@ -211,4 +220,4 @@ ALTER TABLE "wolontariusze" ADD FOREIGN KEY ("id_czlonka") REFERENCES "czlonkowi
 
 ALTER TABLE "wolontariusze" ADD FOREIGN KEY ("id_edycji") REFERENCES "edycje" ("id_edycji");
 
-ALTER TABLE "hasla" ADD FOREIGN KEY ("id_czlonka") REFERENCES "czlonkowie" ("id_czlonka");
+--ALTER TABLE "hasla" ADD FOREIGN KEY ("id_czlonka") REFERENCES "czlonkowie" ("id_czlonka");
