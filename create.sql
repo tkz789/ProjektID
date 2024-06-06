@@ -81,12 +81,14 @@ CREATE TABLE "czlonkowie_archiwum" (
 
 CREATE TABLE "czlonkowie_edycje" (
   "id_czlonka" integer NOT NULL,
-  "id_edycji" integer NOT NULL
+  "id_edycji" integer NOT NULL,
+  UNIQUE("id_czlonka", "id_edycji")
 );
 
 CREATE TABLE "edycje_sale" (
   "id_edycji" integer NOT NULL,
-  "id_sali" integer NOT NULL
+  "id_sali" integer NOT NULL,
+  UNIQUE("id_edycji", "id_sali")
 );
 
 CREATE TABLE "prelekcje" (
@@ -154,7 +156,7 @@ CREATE TABLE "organizatorzy" (
 
 CREATE TABLE "adresy" (
   "id_adresu" serial primary KEY,
-  "adres" varchar(100) not null
+  "adres" varchar(100) not null,
 );
 
 ALTER TABLE "edycje" ADD FOREIGN KEY ("miejsce") REFERENCES "adresy" ("id_adresu");

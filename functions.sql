@@ -405,6 +405,21 @@ return new;
 end;
 $$ language plpgsql;
 
+create or replace function ce_trigger() returns trigger as $$
+begin
+if(
+    exists(select * from czlonkowie_spolecznosci cs where cs.id_czlonka = NEW.id_czlonka 
+and exists(select * from wydarzenia_spolecznosci ce
+where ce.id_wydarzenia = (select e.id_wydarzenia from edycje e where e.id_edycji = NEW.id_edycji) and ce.id_spolecznosci = cs.id_spolecznosci))) then
+return NEW;
+end if;
+return OLD;
+end;
+$$ language plpgsql;
+
+
+create trigger czlonkowie_edycje_check before insert or update on czlonkowie_edycje for each row execute procedure ce_trigger();
+
 create trigger czlonkowie_check after update on czlonkowie for each row execute procedure czlonkowie_trigger();
 create trigger prelegenci_check before insert or update on prelegenci for each row execute procedure prelegent_trigger();
 

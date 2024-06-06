@@ -479,7 +479,7 @@ def join_event():
         with get_db_connection() as conn:
             with conn.cursor() as cur:
                 try:
-                    cur.execute("SELECT add_czlonek_to_edycja(%s, %s)", (current_user.id, id_edycji)) #TODO
+                    cur.execute("insert into czlonkowie_edycje(id_czlonka, id_edycji) values (%s, %s)", (current_user.id, id_edycji))
                     conn.commit()
                     flash("Dołączono do wydarzenia!")
                 except:
@@ -492,7 +492,7 @@ def join_event():
             cur.execute("""SELECT id_edycji, nazwa, podtytul from edycje join wydarzenia using (id_wydarzenia)
                         join wydarzenia_spolecznosci using (id_wydarzenia)
                         join czlonkowie_spolecznosci using (id_spolecznosci)
-                        where id_czlonka = %s and current_date <= data_zakonczenia""", (current_user.id,))
+                        where id_czlonka = %s and current_date <= data_zakonczenia and id_edycji != ALL(SELECT id_edycji from czlonkowie_edycje where id_czlonka = %s)""", (current_user.id, current_user.id))
             events = cur.fetchall()
 
     return render_template('html/join_event.html', user=current_user, events=events)
