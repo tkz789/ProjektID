@@ -266,14 +266,17 @@ end;
 $$ language plpgsql;
 
 create or replace function get_timestable(edit_id integer, for_day date) returns table(data_rozpoczecia timestamp, data_zakonczenia timestamp,
-temat varchar(100), opis varchar(1000), prowadzacy text[], sala int) as $$
+temat varchar(100), opis varchar(1000), prowadzacy text[], sala int, wolontariusze text[]) as $$
 begin
 return query 
     select p.data_prelekcji, 
     p.data_prelekcji + (select d.dlugosc from dlugosci d where d.dlugosc_prelekcji = p.dlugosc_prelekcji), 
     p.temat, p.opis,
      (select array_agg(concat(q.imie, ' ', q.nazwisko)) from prelegenci q where exists(select * 
-     from prelekcje_prelegenci r where r.id_prelegenta = q.id_prelegenta and r.id_prelekcji = p.id_prelekcji )), p.id_sali
+     from prelekcje_prelegenci r where r.id_prelegenta = q.id_prelegenta and r.id_prelekcji = p.id_prelekcji )), p.id_sali,
+     (select array_agg(concat(m.imie, ' ', m.nazwisko)) from czlonkowie m where exists(
+        select * from wolontariusze_prelekcje w where w.id_czlonka = m.id_czlonka and w.id_prelekcji = p.id_prelekcji
+     ))
      from prelekcje p
     where p.id_edycji = edit_id and p.data_prelekcji::date = for_day and
     exists(select * from prelegenci q where exists(select * 
@@ -474,9 +477,3 @@ create trigger wp_check before insert or update on wolontariusze_prelekcje for e
 create trigger wolontariusze_check before insert or update on wolontariusze for each row execute procedure wolontariusze_trigger();
 create trigger ce_delete_check before delete on czlonkowie_edycje for each row execute procedure ce_delete_trigger();
 create trigger wolo_delete_check before delete on wolontariusze for each row execute procedure wolontariusze_delete_trigger();
-
-
-
-
-
-
