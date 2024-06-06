@@ -158,26 +158,26 @@ def get_statistics():
         abort(500, description="Nieudane połączenie z bazą danych.")
     
     try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        with conn.cursor() as cur:
             cur.execute('''
                 SELECT 
-                    e.nr_edycji, 
-                    w.nazwa, 
-                    count_participants(e.id_edycji) as count_participants 
-                FROM edycje e join wydarzenia w on e.id_wydarzenia = w.id_wydarzenia;
+                    *
+                FROM full_edition_statistics;
             ''')
-            data = cur.fetchall()
-            return jsonify(data)
+            stats = cur.fetchall()
+            cur.execute('''
+                SELECT 
+                    *
+                FROM full_communities_statistics;
+            ''')
+            stats2 = cur.fetchall()
+            return render_template('html/statistics.html', stats=stats, stats2=stats2)
     except Exception as e:
         print(f"Error fetching statistics: {e}")
         abort(500, description="Nieudane pobieranie statystyk.")
     finally:
         conn.close()
 
-@app.route('/statistics')
-@login_required
-def statistics():
-    return render_template('html/statistics.html', user = current_user)
 
 
 def get_posts(community_id):
@@ -314,7 +314,7 @@ def register_talk():
         conn.close()
         return redirect(url_for('index'))
 
-    cur.execute('SELECT id_sali, adres, nazwa FROM sale')
+    cur.execute('SELECT id_sali, (select s.adres from adresy s where s.id_adresu = adres), nazwa FROM sale')
     rooms = cur.fetchall()
     
     cur.execute('SELECT id_prelegenta, imie, nazwisko FROM prelegenci')
@@ -475,7 +475,7 @@ def join_community():
     if request.method == 'POST':
         id_spolecznosci = request.form["community_id"]
         user_id = current_user.get_id()
-        cur.execute("INSERT INTO czlonkowie_spolecznosci(id_czlonka, id_spolecznosci, id_roliq) values (%s, %s, 1)", (user_id, id_spolecznosci) )
+        cur.execute("INSERT INTO czlonkowie_spolecznosci(id_czlonka, id_spolecznosci, id_roli) values (%s, %s, 1)", (user_id, id_spolecznosci) )
         conn.commit()
         cur.close()
         conn.close()
