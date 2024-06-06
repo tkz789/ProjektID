@@ -21,6 +21,13 @@ class User(UserMixin):
         super().__init__()
         self.data = data
         self.id = data['id_czlonka']
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) > 0 from czlonkowie_spolecznosci where id_czlonka = %s and id_roli = 1", (self.id,)) 
+            self.is_admin = cur.fetchone()[0]
+            print(self.is_admin, file=sys.stderr)
+        conn.commit()
+        conn.close()
 
     def __str__(self) -> str:
         return f"User({str(self.data)})"
@@ -42,8 +49,6 @@ def load_user(user_id):
 
     return None
 
-# with app.app_context():
-#     db.create_all()
 
 def get_db_connection():
     conn = psycopg2.connect(
@@ -57,9 +62,6 @@ def get_db_connection():
 def index():
     return redirect(url_for('home'))
 
-# @app.route('/login')
-# def login():
-#     return render_template('html/login.html')
 
 @app.route("/aboutus")
 def aboutus():
@@ -95,12 +97,6 @@ def register():
         except Exception as e:
             flash(str(e), 'danger')
             conn.rollback()
-        # user = User(nazwa_uzytkownika=form.username.data, email=form.email.data,
-        #             imie=form.imie.data, nazwisko=form.nazwisko.data,
-        #             data_dolaczenia=date.today())
-        # user.set_password(form.password.data)
-        # db.session.add(user)
-        # db.session.commit()
         return redirect(url_for('login'))
     return render_template('html/register.html', form=form, user = current_user)
 
@@ -110,7 +106,6 @@ def login():
     print("przed formularzem", form.is_submitted(), form.validate(), file=sys.stderr)
     if form.is_submitted():
         print("Przed zapytaniem", file=sys.stderr)
-        # user = User.query.filter_by(nazwa_uzytkownika=form.username.data).first()
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
         password = form.password.data
@@ -129,9 +124,7 @@ def login():
         print("TEST", file=sys.stderr)
         print(user_id, user, file=sys.stderr)
 
-        # flash('To działa' + str(user), 'success')
         if user and check_password_hash(user.data['haslo_hash'], password):
-            # flash('To działa', 'danger')
             login_user(user, remember=remember)
             return redirect(url_for('dashboard'))
         else:
@@ -362,6 +355,9 @@ def add_speaker():
 @app.route('/admin_panel', methods=['GET', 'POST'])
 @login_required
 def admin_panel():
+    if not current_user.is_admin:
+        flash("Nie masz dostępu do funkcji admina!")
+        return redirect(url_for("dashboard"))
     if request.method == 'POST':
         edit_id = request.form['edit_id']
         badge_type = request.form['badge_type']
@@ -475,7 +471,7 @@ def join_community():
     if request.method == 'POST':
         id_spolecznosci = request.form["community_id"]
         user_id = current_user.get_id()
-        cur.execute("INSERT INTO czlonkowie_spolecznosci(id_czlonka, id_spolecznosci, id_roli) values (%s, %s, 1)", (user_id, id_spolecznosci) )
+        cur.execute("INSERT INTO czlonkowie_spolecznosci(id_czlonka, id_spolecznosci, id_roli) values (%s, %s, 3)", (user_id, id_spolecznosci) )
         conn.commit()
         cur.close()
         conn.close()
