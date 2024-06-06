@@ -8,7 +8,7 @@
             <div class="alert alert-{{ category }}">{{ message }}</div>
         {% endfor %}
     {% endif %}
-    {% endwith %}
+{% endwith %}
  <div class="holly_center_pls_press_f_for_coder">
   <div class="form_regist">
     <h1 class="h2_form"> {{ edition_details[0] }} Edycja: {{ edition_details[1] }}</h1>
@@ -27,7 +27,11 @@
       {% if events %}
         <ul class="event-time">
           {% for event in events %}
-            <li>{{ event[1] }} Temat: {{ event[2] }}, prowadzący {{ event[4] }}</li>
+            <li>{{ event[1] }} Temat: {{ event[2] }}, prowadzący {{ event[4] }}
+            {% if is_volunteer %}
+                , wolontariusze: {{ event[6] }}
+            {% endif %}
+            </li>
           {% endfor %}
         </ul>
       {% else %}
@@ -37,4 +41,4 @@
   </div>
  
   <a class="btn" href="{{ url_for('dashboard') }}">Powrót</a>
-  {% endblock %}
+{% endblock %}
