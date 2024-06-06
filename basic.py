@@ -26,7 +26,6 @@ class User(UserMixin):
         with conn.cursor() as cur:
             cur.execute("SELECT COUNT(*) > 0 from czlonkowie_spolecznosci where id_czlonka = %s and id_roli = 1", (self.id,)) 
             self.is_admin = cur.fetchone()[0]
-            print(self.is_admin, file=sys.stderr)
         conn.close()
 
     def __str__(self) -> str:
@@ -35,18 +34,17 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    conn = get_db_connection()
-    cur = conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
-    user = None
-    try:
-        cur.execute("SELECT * from czlonkowie where id_czlonka = %s", (user_id,))
-        user = cur.fetchone()
-        conn.commit()
-        if user is not None:
-            return User(user)
-    except:
-        conn.rollback()
-
+    with get_db_connection() as conn:
+        with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cur:
+            user = None
+            try:
+                cur.execute("SELECT * from czlonkowie where id_czlonka = %s", (user_id,))
+                user = cur.fetchone()
+                conn.commit()
+                if user is not None:
+                    return User(user)
+            except:
+                conn.rollback()
     return None
 
 
@@ -69,43 +67,39 @@ def aboutus():
 
 @app.route("/home")
 def home():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT nazwa from spolecznosci")
-    spolecznosci = cur.fetchall()
-    conn.commit()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT nazwa from spolecznosci")
+            spolecznosci = cur.fetchall()
     return render_template('html/index.html', spolecznosci=spolecznosci, user = current_user)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        try:
-            username = form.username.data
-            email = form.email.data
-            imie = form.imie.data
-            nazwisko = form.nazwisko.data
-            password = generate_password_hash(form.password.data)
-            pronoun_id = None  # Replace with actual pronoun_id if applicable
-            newsletter = form.newsletter.data if 'newsletter' in form else True
-            with get_db_connection() as conn:
-                with conn.cursor() as cur:
+        username = form.username.data
+        email = form.email.data
+        imie = form.imie.data
+        nazwisko = form.nazwisko.data
+        password = generate_password_hash(form.password.data)
+        pronoun_id = None  # Replace with actual pronoun_id if applicable
+        newsletter = form.newsletter.data if 'newsletter' in form else True
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                try:
                     cur.execute('SELECT register(%s, %s, %s, %s, %s, %s, %s)', (username, email, imie, nazwisko, password, pronoun_id, newsletter))
                     conn.commit()
                     flash('Account created successfully!', 'success')
-
-        except Exception as e:
-            flash(str(e), 'danger')
-            conn.rollback()
-        return redirect(url_for('login'))
+                except Exception as e:
+                    flash(str(e), 'danger')
+                    conn.rollback()
+                return redirect(url_for('login'))
     return render_template('html/register.html', form=form, user = current_user)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    print("przed formularzem", form.is_submitted(), form.validate(), file=sys.stderr)
     if form.is_submitted():
-        print("Przed zapytaniem", file=sys.stderr)
         with get_db_connection() as conn:
             with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cur:
                 password = form.password.data
@@ -121,8 +115,6 @@ def login():
                     conn.commit()
                 except:
                     conn.rollback()
-        print("TEST", file=sys.stderr)
-        print(user_id, user, file=sys.stderr)
 
         if user and check_password_hash(user.data['haslo_hash'], password):
             login_user(user, remember=remember)
@@ -149,29 +141,27 @@ def get_statistics():
     conn = get_db_connection()
     if conn is None:
         abort(500, description="Nieudane połączenie z bazą danych.")
-
+    
     try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        with conn.cursor() as cur:
             cur.execute('''
-                SELECT
-                    e.nr_edycji,
-                    w.nazwa,
-                    count_participants(e.id_edycji) as count_participants
-                FROM edycje e join wydarzenia w on e.id_wydarzenia = w.id_wydarzenia;
+                SELECT 
+                    *
+                FROM full_edition_statistics;
             ''')
-            data = cur.fetchall()
-            return jsonify(data)
+            stats = cur.fetchall()
+            cur.execute('''
+                SELECT 
+                    *
+                FROM full_communities_statistics;
+            ''')
+            stats2 = cur.fetchall()
+            return render_template('html/statistics.html', stats=stats, stats2=stats2)
     except Exception as e:
         print(f"Error fetching statistics: {e}")
         abort(500, description="Nieudane pobieranie statystyk.")
     finally:
         conn.close()
-
-@app.route('/statistics')
-@login_required
-def statistics():
-    return render_template('html/statistics.html', user = current_user)
-
 
 def get_posts(community_id):
     with get_db_connection() as conn:
@@ -198,26 +188,19 @@ def get_communities_with_names(member_id):
     return communities
 
 def get_user_posts_with_names(user_id):
-    conn = get_db_connection()
-    cur = conn.cursor()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute('SELECT * FROM get_user_posts_with_names(%s) LIMIT 25', (user_id,))
+            posts = cur.fetchall()
 
-    cur.execute('SELECT * FROM get_user_posts_with_names(%s) LIMIT 25', (user_id,))
-    posts = cur.fetchall()
-
-    cur.close()
-    conn.close()
 
     return posts
 
 def get_replies(parent_post_id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-
-    cur.execute('SELECT * FROM get_replies(%s)', (parent_post_id,))
-    replies = cur.fetchall()
-
-    cur.close()
-    conn.close()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute('SELECT * FROM get_replies(%s)', (parent_post_id,))
+            replies = cur.fetchall()
 
     return replies
 
