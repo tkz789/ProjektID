@@ -3,45 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edycje Statystyki</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Statistics</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Statystyki Edycji</h1>
-    <button id="getStatistics">Pobierz Statystyki</button>
-    <div id="statistics"></div>
-
-    <script>
-        function getStatistics() {
-            $.ajax({
-                url: '/get_statistics',
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    const table = $('<table></table>');
-                    const tableHead = $('<thead></thead>');
-                    const tableBody = $('<tbody></tbody>');
-
-                    const tableHeadRow = $('<tr><th>ID</th><th>Społeczność</th><th>Uczestników</th></tr>');
-                    tableHead.append(tableHeadRow);
-
-                    data.forEach(community => {
-                        const tableBodyRow = $(`<tr><td>${community.id_spolecznosci}</td><td>${community.nazwa_spolecznosci}</td><td>${community.count_participants}</td></tr>`);
-                        tableBody.append(tableBodyRow);
-                    });
-
-                    table.append(tableHead);
-                    table.append(tableBody);
-                    $('#statistics').append(table);
-                },
-                error: function (error) {
-                    console.error(error);
-                    $('#statistics').text('Wystąpił błąd podczas pobierania statystyk.');
-                }
-            });
-        }
-
-        $('#getStatistics').on('click', getStatistics);
-    </script>
+    <div class="container">
+        <h1 class="mt-5">Statystyki edycji</h1>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>ID Edycji</th>
+                    <th>Wydarzenie</th>
+                    <th>Numer Edycji</th>
+                    <th>Liczba Uczestników</th>
+                    <th>Liczba Organizatorów</th>
+                    <th>Liczba Prelegentów</th>
+                    <th>Liczba Wolontariuszy</th>
+                    <th>Ilość Prelekcji</th>
+                    <th>Ilość Sal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in stats %}
+                <tr>
+                    <td>{{ stat[0] }}</td>
+                    <td>{{ stat[1] }}</td>
+                    <td>{{ stat[2] }}</td>
+                    <td>{{ stat[3] }}</td>
+                    <td>{{ stat[4] }}</td>
+                    <td>{{ stat[5] }}</td>
+                    <td>{{ stat[6] }}</td>
+                    <td>{{ stat[7] }}</td>
+                    <td>{{ stat[8] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="container">
+        <h1 class="mt-5">Statystyki społeczności</h1>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>ID Społeczności</th>
+                    <th>Nazwa</th>
+                    <th>Ilość Członków</th>
+                    <th>Ilość Współorganizowanych Wydarzeń</th>
+                    <th>Ilość Postów</th>
+                    <th>Ilość Wątków</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat2 in stats2 %}
+                <tr>
+                    <td>{{ stat2[0] }}</td>
+                    <td>{{ stat2[1] }}</td>
+                    <td>{{ stat2[2] }}</td>
+                    <td>{{ stat2[3] }}</td>
+                    <td>{{ stat2[4] }}</td>
+                    <td>{{ stat2[5] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
