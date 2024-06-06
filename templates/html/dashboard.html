@@ -1,5 +1,5 @@
 {% extends "html/index.html" %}
-{% block title %}Rejestracja  rozmowy{% endblock %}
+{% block title %}Panel główny{% endblock %}
 {% block body %}
 
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -15,6 +15,7 @@
     <a class="btn" href="{{ url_for('admin_panel') }}">Panel administratora</a><br>
     <a class="btn" href="{{ url_for('feed') }}">Feed</a>
     <a class="btn" href="{{ url_for('events') }}">Wydarzenia</a>
+    <a class="btn" href="{{ url_for('join_community') }}">Dołącz do kolejnej społeczności</a>
   </div>
 </div>
 <img id="photo" src="static/images/log_phot.png">

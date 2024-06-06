@@ -39,7 +39,7 @@ def load_user(user_id):
             return User(user)
     except:
         conn.rollback()
-    
+
     return None
 
 # with app.app_context():
@@ -128,7 +128,7 @@ def login():
             conn.rollback()
         print("TEST", file=sys.stderr)
         print(user_id, user, file=sys.stderr)
-        
+
         # flash('To działa' + str(user), 'success')
         if user and check_password_hash(user.data['haslo_hash'], password):
             # flash('To działa', 'danger')
@@ -156,88 +156,88 @@ def get_statistics():
     conn = get_db_connection()
     if conn is None:
         abort(500, description="Nieudane połączenie z bazą danych.")
-    
+
     try:
-        with conn.cursor() as cur:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute('''
-                SELECT 
-                    *
-                FROM full_edition_statistics;
+                SELECT
+                    e.nr_edycji,
+                    w.nazwa,
+                    count_participants(e.id_edycji) as count_participants
+                FROM edycje e join wydarzenia w on e.id_wydarzenia = w.id_wydarzenia;
             ''')
-            stats = cur.fetchall()
-            cur.execute('''
-                SELECT 
-                    *
-                FROM full_communities_statistics;
-            ''')
-            stats2 = cur.fetchall()
-            return render_template('html/statistics.html', stats=stats, stats2=stats2)
+            data = cur.fetchall()
+            return jsonify(data)
     except Exception as e:
         print(f"Error fetching statistics: {e}")
         abort(500, description="Nieudane pobieranie statystyk.")
     finally:
         conn.close()
 
+@app.route('/statistics')
+@login_required
+def statistics():
+    return render_template('html/statistics.html', user = current_user)
 
 
 def get_posts(community_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     cur.execute('SELECT * FROM get_posts(%s)', (community_id,))
     posts = cur.fetchall()
-    
+
     cur.close()
     conn.close()
-    
+
     return posts
 
 def get_post(post_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     cur.execute('SELECT * FROM posty WHERE id_posta = %s', (post_id,))
     post = cur.fetchone()
-    
+
     cur.close()
     conn.close()
-    
+
     return post
 
 def get_communities_with_names(member_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     cur.execute('SELECT * FROM get_communities_with_names(%s)', (member_id,))
     communities = cur.fetchall()
-    
+
     cur.close()
     conn.close()
-    
+
     return communities
 
 def get_user_posts_with_names(user_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     cur.execute('SELECT * FROM get_user_posts_with_names(%s) LIMIT 25', (user_id,))
     posts = cur.fetchall()
-    
+
     cur.close()
     conn.close()
-    
+
     return posts
 
 def get_replies(parent_post_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     cur.execute('SELECT * FROM get_replies(%s)', (parent_post_id,))
     replies = cur.fetchall()
-    
+
     cur.close()
     conn.close()
-    
+
     return replies
 
 @app.route('/feed')
@@ -314,18 +314,18 @@ def register_talk():
         conn.close()
         return redirect(url_for('index'))
 
-    cur.execute('SELECT id_sali, (select s.adres from adresy s where s.id_adresu = adres), nazwa FROM sale')
+    cur.execute('SELECT id_sali, adres, nazwa FROM sale')
     rooms = cur.fetchall()
-    
+
     cur.execute('SELECT id_prelegenta, imie, nazwisko FROM prelegenci')
     speakers = cur.fetchall()
-    
+
     cur.execute('SELECT dlugosc_prelekcji, dlugosc FROM dlugosci')
     lengths = cur.fetchall()
 
     cur.close()
     conn.close()
-    
+
     return render_template('html/register_talk.html', rooms=rooms, speakers=speakers, lengths=lengths, user = current_user)
 
 @app.route('/add_speaker', methods=['GET', 'POST'])
@@ -348,13 +348,13 @@ def add_speaker():
 
     cur.execute('SELECT id_prelegenta, imie, nazwisko FROM prelegenci')
     speakers = cur.fetchall()
-    
+
     cur.execute('SELECT id_prelekcji, temat FROM prelekcje')
     talks = cur.fetchall()
 
     cur.close()
     conn.close()
-    
+
     return render_template('html/add_speaker.html', speakers=speakers, talks=talks, user = current_user)
 
 
@@ -394,69 +394,69 @@ def generate_badges(edit_id, badge_type):
 def get_editions(member_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     cur.execute('SELECT * FROM get_editions(%s)', (member_id,))
     editions = cur.fetchall()
-    
+
 
     cur.close()
     conn.close()
-    
+
     return editions
 
 def get_edition_details(edition_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     query = """
-    SELECT e.nr_edycji, w.nazwa, e.data_rozpoczecia, e.data_zakonczenia 
-    FROM edycje e 
-    JOIN wydarzenia w ON w.id_wydarzenia = e.id_wydarzenia 
+    SELECT e.nr_edycji, w.nazwa, e.data_rozpoczecia, e.data_zakonczenia
+    FROM edycje e
+    JOIN wydarzenia w ON w.id_wydarzenia = e.id_wydarzenia
     WHERE e.id_edycji = %s
     """
     cur.execute(query, (edition_id,))
     edition_details = cur.fetchone()
-    
+
     cur.close()
     conn.close()
-    
+
     return edition_details
 
 def get_timetable(edition_id, event_date):
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     cur.execute('SELECT * FROM get_timestable(%s, %s)', (edition_id, event_date))
     timetable = cur.fetchall()
-    
+
     cur.close()
     conn.close()
-    
+
     return timetable
 
 @app.route('/events')
 @login_required
 def events():
     edition_id = request.args.get('edition_id')
-    
+
     if edition_id:
         try:
             edition_id = int(edition_id)
         except ValueError:
             return "Invalid Edition ID", 400
-        
+
         edition_details = get_edition_details(edition_id)
         if not edition_details:
             return "Edition not found", 404
-        
+
         start_date, end_date = edition_details[2], edition_details[3]
         current_date = start_date
-        
+
         timetable = {}
         while current_date <= end_date:
             timetable[current_date] = get_timetable(edition_id, current_date)
             current_date += timedelta(days=1)
-        
+
         return render_template('html/edition.html', edition_details=edition_details, timetable=timetable, edition_id=edition_id, user = current_user)
     else:
         user_id = current_user.data['id_czlonka']
@@ -464,7 +464,7 @@ def events():
         current_date = date.today()
         current_future_editions = [edition for edition in editions if edition[2] >= current_date]
         past_editions = [edition for edition in editions if edition[2] < current_date]
-        
+
         return render_template('html/events.html', current_future_editions=current_future_editions, past_editions=past_editions, user = current_user)
 
 @app.route('/join_community', methods=['GET', 'POST'])
@@ -480,13 +480,13 @@ def join_community():
         cur.close()
         conn.close()
         return redirect(url_for('dashboard'))
-    
-    
+
+
     cur.execute("""SELECT id_spolecznosci, nazwa from spolecznosci""")
     spolecznosci = cur.fetchall()
     cur.close()
     conn.close()
     return render_template('html/join_community.html', user=current_user, spolecznosci=spolecznosci)
-    
+
 if __name__ == '__main__':
     app.run(debug=True)
