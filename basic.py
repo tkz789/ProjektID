@@ -21,12 +21,6 @@ class User(UserMixin):
         super().__init__()
         self.data = data
         self.id = data['id_czlonka']
-        conn = get_db_connection()
-        with conn.cursor() as cur:
-            cur.execute("SELECT COUNT(*) > 0 from czlonkowie_spolecznosci where id_czlonka = %s and id_roli = 1", (self.id,)) 
-            self.is_admin = cur.fetchone()[0]
-            print(self.is_admin, file=sys.stderr)
-        conn.close()
 
     def __str__(self) -> str:
         return f"User({str(self.data)})"
@@ -45,9 +39,11 @@ def load_user(user_id):
             return User(user)
     except:
         conn.rollback()
-
+    
     return None
 
+# with app.app_context():
+#     db.create_all()
 
 def get_db_connection():
     conn = psycopg2.connect(
@@ -61,6 +57,9 @@ def get_db_connection():
 def index():
     return redirect(url_for('home'))
 
+# @app.route('/login')
+# def login():
+#     return render_template('html/login.html')
 
 @app.route("/aboutus")
 def aboutus():
@@ -87,15 +86,21 @@ def register():
             password = generate_password_hash(form.password.data)
             pronoun_id = None  # Replace with actual pronoun_id if applicable
             newsletter = form.newsletter.data if 'newsletter' in form else True
-            with get_db_connection() as conn:
-                with conn.cursor() as cur:
-                    cur.execute('SELECT register(%s, %s, %s, %s, %s, %s, %s)', (username, email, imie, nazwisko, password, pronoun_id, newsletter))
-                    conn.commit()
-                    flash('Account created successfully!', 'success')
+            conn = get_db_connection()
+            curr = conn.cursor()
+            curr.execute('SELECT register(%s, %s, %s, %s, %s, %s, %s)', (username, email, imie, nazwisko, password, pronoun_id, newsletter))
+            conn.commit()
+            flash('Account created successfully!', 'success')
 
         except Exception as e:
             flash(str(e), 'danger')
             conn.rollback()
+        # user = User(nazwa_uzytkownika=form.username.data, email=form.email.data,
+        #             imie=form.imie.data, nazwisko=form.nazwisko.data,
+        #             data_dolaczenia=date.today())
+        # user.set_password(form.password.data)
+        # db.session.add(user)
+        # db.session.commit()
         return redirect(url_for('login'))
     return render_template('html/register.html', form=form, user = current_user)
 
@@ -105,25 +110,28 @@ def login():
     print("przed formularzem", form.is_submitted(), form.validate(), file=sys.stderr)
     if form.is_submitted():
         print("Przed zapytaniem", file=sys.stderr)
-        with get_db_connection() as conn:
-            with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cur:
-                password = form.password.data
-                username = form.username.data
-                remember = form.remember.data
-                user = None
-                user_id = None
-                try:
-                    cur.execute("select get_user_id(%s) as user_id", (username,))
-                    user_id = cur.fetchone()
-                    cur.execute("select * from czlonkowie where id_czlonka = %s", (user_id['user_id'],))
-                    user = User(cur.fetchone())
-                    conn.commit()
-                except:
-                    conn.rollback()
+        # user = User.query.filter_by(nazwa_uzytkownika=form.username.data).first()
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
+        password = form.password.data
+        username = form.username.data
+        remember = form.remember.data
+        user = None
+        user_id = None
+        try:
+            cur.execute("select get_user_id(%s) as user_id", (username,))
+            user_id = cur.fetchone()
+            cur.execute("select * from czlonkowie where id_czlonka = %s", (user_id['user_id'],))
+            user = User(cur.fetchone())
+            conn.commit()
+        except:
+            conn.rollback()
         print("TEST", file=sys.stderr)
         print(user_id, user, file=sys.stderr)
-
+        
+        # flash('To działa' + str(user), 'success')
         if user and check_password_hash(user.data['haslo_hash'], password):
+            # flash('To działa', 'danger')
             login_user(user, remember=remember)
             return redirect(url_for('dashboard'))
         else:
@@ -148,76 +156,88 @@ def get_statistics():
     conn = get_db_connection()
     if conn is None:
         abort(500, description="Nieudane połączenie z bazą danych.")
-
+    
     try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        with conn.cursor() as cur:
             cur.execute('''
-                SELECT
-                    e.nr_edycji,
-                    w.nazwa,
-                    count_participants(e.id_edycji) as count_participants
-                FROM edycje e join wydarzenia w on e.id_wydarzenia = w.id_wydarzenia;
+                SELECT 
+                    *
+                FROM full_edition_statistics;
             ''')
-            data = cur.fetchall()
-            return jsonify(data)
+            stats = cur.fetchall()
+            cur.execute('''
+                SELECT 
+                    *
+                FROM full_communities_statistics;
+            ''')
+            stats2 = cur.fetchall()
+            return render_template('html/statistics.html', stats=stats, stats2=stats2)
     except Exception as e:
         print(f"Error fetching statistics: {e}")
         abort(500, description="Nieudane pobieranie statystyk.")
     finally:
         conn.close()
 
-@app.route('/statistics')
-@login_required
-def statistics():
-    return render_template('html/statistics.html', user = current_user)
 
 
 def get_posts(community_id):
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute('SELECT * FROM get_posts(%s)', (community_id,))
-            posts = cur.fetchall()
-
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM get_posts(%s)', (community_id,))
+    posts = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
     return posts
 
 def get_post(post_id):
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute('SELECT * FROM posty WHERE id_posta = %s', (post_id,))
-            post = cur.fetchone()
-
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM posty WHERE id_posta = %s', (post_id,))
+    post = cur.fetchone()
+    
+    cur.close()
+    conn.close()
+    
     return post
 
 def get_communities_with_names(member_id):
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute('SELECT * FROM get_communities_with_names(%s)', (member_id,))
-            communities = cur.fetchall()
-
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM get_communities_with_names(%s)', (member_id,))
+    communities = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
     return communities
 
 def get_user_posts_with_names(user_id):
     conn = get_db_connection()
     cur = conn.cursor()
-
+    
     cur.execute('SELECT * FROM get_user_posts_with_names(%s) LIMIT 25', (user_id,))
     posts = cur.fetchall()
-
+    
     cur.close()
     conn.close()
-
+    
     return posts
 
 def get_replies(parent_post_id):
     conn = get_db_connection()
     cur = conn.cursor()
-
+    
     cur.execute('SELECT * FROM get_replies(%s)', (parent_post_id,))
     replies = cur.fetchall()
-
+    
     cur.close()
     conn.close()
-
+    
     return replies
 
 @app.route('/feed')
@@ -294,18 +314,18 @@ def register_talk():
         conn.close()
         return redirect(url_for('index'))
 
-    cur.execute('SELECT id_sali, adres, nazwa FROM sale')
+    cur.execute('SELECT id_sali, (select s.adres from adresy s where s.id_adresu = adres), nazwa FROM sale')
     rooms = cur.fetchall()
-
+    
     cur.execute('SELECT id_prelegenta, imie, nazwisko FROM prelegenci')
     speakers = cur.fetchall()
-
+    
     cur.execute('SELECT dlugosc_prelekcji, dlugosc FROM dlugosci')
     lengths = cur.fetchall()
 
     cur.close()
     conn.close()
-
+    
     return render_template('html/register_talk.html', rooms=rooms, speakers=speakers, lengths=lengths, user = current_user)
 
 @app.route('/add_speaker', methods=['GET', 'POST'])
@@ -328,13 +348,13 @@ def add_speaker():
 
     cur.execute('SELECT id_prelegenta, imie, nazwisko FROM prelegenci')
     speakers = cur.fetchall()
-
+    
     cur.execute('SELECT id_prelekcji, temat FROM prelekcje')
     talks = cur.fetchall()
 
     cur.close()
     conn.close()
-
+    
     return render_template('html/add_speaker.html', speakers=speakers, talks=talks, user = current_user)
 
 
@@ -342,9 +362,6 @@ def add_speaker():
 @app.route('/admin_panel', methods=['GET', 'POST'])
 @login_required
 def admin_panel():
-    if not current_user.is_admin:
-        flash("Nie masz dostępu do funkcji admina!")
-        return redirect(url_for("dashboard"))
     if request.method == 'POST':
         edit_id = request.form['edit_id']
         badge_type = request.form['badge_type']
@@ -377,77 +394,81 @@ def generate_badges(edit_id, badge_type):
 def get_editions(member_id):
     conn = get_db_connection()
     cur = conn.cursor()
-
+    
     cur.execute('SELECT * FROM get_editions(%s)', (member_id,))
     editions = cur.fetchall()
-
+    
 
     cur.close()
     conn.close()
-
+    
     return editions
 
 def get_edition_details(edition_id):
     conn = get_db_connection()
     cur = conn.cursor()
-
+    
     query = """
-    SELECT e.nr_edycji, w.nazwa, e.data_rozpoczecia, e.data_zakonczenia
-    FROM edycje e
-    JOIN wydarzenia w ON w.id_wydarzenia = e.id_wydarzenia
+    SELECT e.nr_edycji, w.nazwa, e.data_rozpoczecia, e.data_zakonczenia 
+    FROM edycje e 
+    JOIN wydarzenia w ON w.id_wydarzenia = e.id_wydarzenia 
     WHERE e.id_edycji = %s
     """
     cur.execute(query, (edition_id,))
     edition_details = cur.fetchone()
-
+    
     cur.close()
     conn.close()
-
+    
     return edition_details
 
 def get_timetable(edition_id, event_date):
     conn = get_db_connection()
     cur = conn.cursor()
-
+    
     cur.execute('SELECT * FROM get_timestable(%s, %s)', (edition_id, event_date))
     timetable = cur.fetchall()
-
+    
     cur.close()
     conn.close()
-
+    
     return timetable
 
 @app.route('/events')
 @login_required
 def events():
     edition_id = request.args.get('edition_id')
-
+    
     if edition_id:
         try:
             edition_id = int(edition_id)
         except ValueError:
             return "Invalid Edition ID", 400
-
+        
         edition_details = get_edition_details(edition_id)
         if not edition_details:
             return "Edition not found", 404
-
+        
         start_date, end_date = edition_details[2], edition_details[3]
         current_date = start_date
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT EXISTS(SELECT 1 FROM wolontariusze WHERE id_edycji = %s and id_czlonka = %s)", (edition_id, current_user.data["id_czlonka"]))
+        is_volunteer = cur.fetchone()[0]
 
         timetable = {}
         while current_date <= end_date:
             timetable[current_date] = get_timetable(edition_id, current_date)
             current_date += timedelta(days=1)
-
-        return render_template('html/edition.html', edition_details=edition_details, timetable=timetable, edition_id=edition_id, user = current_user)
+        
+        return render_template('html/edition.html', edition_details=edition_details, timetable=timetable, edition_id=edition_id, user = current_user, is_volunteer = is_volunteer)
     else:
         user_id = current_user.data['id_czlonka']
         editions = get_editions(user_id)
         current_date = date.today()
         current_future_editions = [edition for edition in editions if edition[2] >= current_date]
         past_editions = [edition for edition in editions if edition[2] < current_date]
-
+        
         return render_template('html/events.html', current_future_editions=current_future_editions, past_editions=past_editions, user = current_user)
 
 @app.route('/join_community', methods=['GET', 'POST'])
@@ -458,44 +479,18 @@ def join_community():
     if request.method == 'POST':
         id_spolecznosci = request.form["community_id"]
         user_id = current_user.get_id()
-        cur.execute("INSERT INTO czlonkowie_spolecznosci(id_czlonka, id_spolecznosci, id_roli) values (%s, %s, 3)", (user_id, id_spolecznosci) )
+        cur.execute("INSERT INTO czlonkowie_spolecznosci(id_czlonka, id_spolecznosci, id_roli) values (%s, %s, 1)", (user_id, id_spolecznosci) )
         conn.commit()
         cur.close()
         conn.close()
         return redirect(url_for('dashboard'))
-
-
+    
+    
     cur.execute("""SELECT id_spolecznosci, nazwa from spolecznosci""")
     spolecznosci = cur.fetchall()
     cur.close()
     conn.close()
     return render_template('html/join_community.html', user=current_user, spolecznosci=spolecznosci)
-
-@app.route('/join_event', methods=['GET','POST'])
-@login_required
-def join_event():
-    if request.method == "POST":
-        id_edycji = request.form["edition_id"]
-        with get_db_connection() as conn:
-            with conn.cursor() as cur:
-                try:
-                    cur.execute("insert into czlonkowie_edycje(id_czlonka, id_edycji) values (%s, %s)", (current_user.id, id_edycji))
-                    conn.commit()
-                    flash("Dołączono do wydarzenia!")
-                except:
-                    conn.rollback()
-                    flash("Nie można dołączyć do wybranej edycji!")
-        return redirect(url_for('dashboard'))
-
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""SELECT id_edycji, nazwa, podtytul from edycje join wydarzenia using (id_wydarzenia)
-                        join wydarzenia_spolecznosci using (id_wydarzenia)
-                        join czlonkowie_spolecznosci using (id_spolecznosci)
-                        where id_czlonka = %s and current_date <= data_zakonczenia and id_edycji != ALL(SELECT id_edycji from czlonkowie_edycje where id_czlonka = %s)""", (current_user.id, current_user.id))
-            events = cur.fetchall()
-
-    return render_template('html/join_event.html', user=current_user, events=events)
-
+    
 if __name__ == '__main__':
     app.run(debug=True)
