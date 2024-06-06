@@ -1,17 +1,30 @@
-create or replace function login(username varchar(30), g_password varchar(50)) returns integer as $$
-declare user_id integer;
-user_password varchar(50);
+-- create or replace function login(username varchar(30), g_password varchar(162)) returns integer as $$
+-- declare user_id integer;
+-- user_password varchar(50);
+-- begin
+-- user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = username);
+-- if(user_id is null) then raise exception 'Niepoprawna nazwa uzytkownika'; end if;
+-- user_password = (select haslo from hasla where id_czlonka = user_id 
+-- and data_od = (select max(h.data_od) from hasla h where h.id_czlonka = user_id));
+-- if(user_password is null or g_password != user_password) then raise exception 'Wprowadzone haslo jest nieprawidlowe'; end if;
+-- return user_id;
+-- end;
+-- $$ language plpgsql;
+
+create or replace function get_user_id(username varchar(30)) returns integer as $$
+declare user_id integer default -1;
 begin
+if(exists(select id_czlonka from czlonkowie where nazwa_uzytkownika = username)) then 
 user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = username);
-if(user_id is null) then raise exception 'Niepoprawna nazwa uzytkownika'; end if;
-user_password = (select haslo from hasla where id_czlonka = user_id 
-and data_od = (select max(h.data_od) from hasla h where h.id_czlonka = user_id));
-if(user_password is null or g_password != user_password) then raise exception 'Wprowadzone haslo jest nieprawidlowe'; end if;
+end if;
+if(user_id = -1) then
+raise exception 'Nie znaleziono uzytkownika';
+end if;
 return user_id;
 end;
 $$ language plpgsql;
 
-create or replace function register(username_ varchar(30), email_ varchar(100), name_ varchar(30), surname_ varchar(150), password_ varchar(50),
+create or replace function register(username_ varchar(30), email_ varchar(100), name_ varchar(30), surname_ varchar(150), password_ char(162),
 pronoun_id integer, newsletter boolean default true) returns boolean as $$
 declare user_id integer;
 begin
@@ -19,10 +32,8 @@ user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = username_
 if(user_id is not null) then raise exception 'Podana nazwa uzytkownika jest juz zajeta'; end if;
 user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = email_);
 if(user_id is not null) then raise exception 'Podany email jest juz zajety'; end if;
-insert into czlonkowie(id_zaimka, nazwa_uzytkownika, email, imie, nazwisko, newsletter, data_dolaczenia) values (pronoun_id, username_, email_, name_, surname_,
-newsletter, NOW());
-user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = username_);
-insert into hasla values (user_id, now(), password_);
+insert into czlonkowie(id_zaimka, nazwa_uzytkownika, email, imie, nazwisko, newsletter, data_dolaczenia, haslo_hash) values (pronoun_id, username_, email_, name_, surname_,
+newsletter, NOW(), password_);
 return true;
 end;
 $$ language plpgsql;
@@ -51,7 +62,36 @@ id_posta_nad integer, id_spolecznosci integer, id_czlonka integer, data_dodania 
 as $$
 begin
 
-return query select * from posty p where p.id_posta_nad is null and p.id_spolecznosci = community_id; 
+return query select * from posty p where p.id_posta_nad is null and p.id_spolecznosci = community_id order by data_dodania desc; 
+end;
+$$ language plpgsql;
+
+create or replace function get_user_posts_with_names(user_id integer) 
+returns table(id_posta integer, id_posta_nad integer, id_spolecznosci integer, nazwa varchar, id_czlonka integer, data_dodania date, tytul varchar(100), tresc varchar(1000)) as $$
+begin
+    return query 
+    select p.id_posta, p.id_posta_nad, p.id_spolecznosci, sp.nazwa, p.id_czlonka, p.data_dodania, p.tytul, p.tresc 
+    from posty p 
+    join spolecznosci sp on p.id_spolecznosci = sp.id_spolecznosci 
+    where p.id_posta_nad is null 
+    and exists (
+        select 1 
+        from czlonkowie_spolecznosci cs 
+        where cs.id_czlonka = user_id 
+        and cs.id_spolecznosci = p.id_spolecznosci
+    ) 
+    order by p.data_dodania desc;
+end;
+$$ language plpgsql;
+
+create or replace function get_communities_with_names(member_id int) 
+returns table(id_spolecznosci integer, nazwa varchar) as $$
+begin
+    return query 
+    select distinct s.id_spolecznosci, sp.nazwa 
+    from czlonkowie_spolecznosci s 
+    join spolecznosci sp on s.id_spolecznosci = sp.id_spolecznosci 
+    where s.id_czlonka = member_id;
 end;
 $$ language plpgsql;
 
@@ -132,6 +172,18 @@ select distinct s.id_spolecznosci from czlonkowie_spolecznosci s where s.id_czlo
 end; 
 $$ language plpgsql;
 
+create or replace function get_editions(member_id int) 
+returns table (id_edycji integer, nazwa varchar, data_rozpoczecia date, data_zakonczenia date) as $$
+begin
+return query
+select e.id_edycji, w.nazwa, e.data_rozpoczecia, e.data_zakonczenia 
+from czlonkowie_edycje s 
+join edycje e on s.id_edycji = e.id_edycji 
+join wydarzenia w on e.id_wydarzenia = w.id_wydarzenia 
+where s.id_czlonka = member_id;
+end; 
+$$ language plpgsql;
+
 create or replace function get_participants (edit_id int) returns table (id_uzytkownika integer) as $$
 begin
 return query 
@@ -147,6 +199,7 @@ count = (select count(*) from get_participants(edit_id));
 return count;
 end;
 $$ language plpgsql;
+
 
 create or replace function intersects(int1 timestamp, int2 timestamp, len1 interval, len2 interval) returns boolean as $$
 begin
@@ -213,14 +266,17 @@ end;
 $$ language plpgsql;
 
 create or replace function get_timestable(edit_id integer, for_day date) returns table(data_rozpoczecia timestamp, data_zakonczenia timestamp,
-temat varchar(100), opis varchar(1000), prowadzacy text[], sala int) as $$
+temat varchar(100), opis varchar(1000), prowadzacy text[], sala int, wolontariusze text[]) as $$
 begin
 return query 
     select p.data_prelekcji, 
     p.data_prelekcji + (select d.dlugosc from dlugosci d where d.dlugosc_prelekcji = p.dlugosc_prelekcji), 
     p.temat, p.opis,
      (select array_agg(concat(q.imie, ' ', q.nazwisko)) from prelegenci q where exists(select * 
-     from prelekcje_prelegenci r where r.id_prelegenta = q.id_prelegenta and r.id_prelekcji = p.id_prelekcji )), p.id_sali
+     from prelekcje_prelegenci r where r.id_prelegenta = q.id_prelegenta and r.id_prelekcji = p.id_prelekcji )), p.id_sali,
+     (select array_agg(concat(m.imie, ' ', m.nazwisko)) from czlonkowie m where exists(
+        select * from wolontariusze_prelekcje w where w.id_czlonka = m.id_czlonka and w.id_prelekcji = p.id_prelekcji
+     ))
      from prelekcje p
     where p.id_edycji = edit_id and p.data_prelekcji::date = for_day and
     exists(select * from prelegenci q where exists(select * 
@@ -228,3 +284,196 @@ return query
      order by p.data_prelekcji, p.id_sali;
 end;
 $$ language plpgsql;
+
+create or replace function generate_attendee_badges(edit_id int) returns table(imie varchar(30), nazwisko varchar(150), tekst varchar) as $$
+declare 
+begin
+    return query
+    select c.imie, c.nazwisko, 'uczestnik'::varchar
+    from czlonkowie c right join czlonkowie_edycje ce on c.id_czlonka = ce.id_czlonka where ce.id_edycji = edit_id;
+end;
+$$ language plpgsql;
+
+
+
+create or replace function generate_volonteer_badges(edit_id int) returns table(imie varchar(30), nazwisko varchar(150), tekst varchar) as $$
+declare 
+begin
+    return query
+    select c.imie, c.nazwisko, 'wolontariusz'::varchar
+    from czlonkowie c right join wolontariusze ce on c.id_czlonka = ce.id_czlonka where ce.id_edycji = edit_id;
+end;
+$$ language plpgsql;
+
+create or replace function generate_organiser_badges(edit_id int) returns table(imie varchar(30), nazwisko varchar(150), tekst varchar) as $$
+declare 
+begin
+    return query
+    select c.imie, c.nazwisko, 'organizator'::varchar
+    from czlonkowie c right join organizatorzy ce on c.id_czlonka = ce.id_czlonka where ce.id_edycji = edit_id;
+end;
+$$ language plpgsql;
+
+
+create or replace function generate_speaker_badges(edit_id int) returns table(imie varchar(30), nazwisko varchar(150), tekst varchar) as $$
+begin
+    return query
+    select s.imie, s.nazwisko, 'prelegent'::varchar
+    from prelegenci s join prelekcje p on (exists(select * from prelekcje_prelegenci r 
+    where r.id_prelekcji = p.id_prelekcji and r.id_prelegenta = s.id_prelegenta)) where p.id_edycji = edit_id group by s.id_prelegenta;
+    end;
+$$ language plpgsql;
+
+
+create or replace view full_edition_statistics as 
+select e.id_edycji as "id edycji", (select w.nazwa from wydarzenia w where w.id_wydarzenia = e.id_wydarzenia) as "wydarzenie", e.nr_edycji as "numer edycji",
+(select count(*) from generate_attendee_badges(e.id_edycji)) as "liczba uczestników", (select count(*) from generate_organiser_badges(e.id_edycji)) as "liczba organizatorów", 
+(select count(*) from generate_speaker_badges(e.id_edycji)) as "liczba prelegentów", (select count(*) from generate_volonteer_badges(e.id_edycji)) as "liczba wolontariuszy", 
+(select count(*) from prelekcje p where p.id_edycji = e.id_edycji) as "ilość prelekcji", (select count(*) from edycje_sale r where r.id_edycji = e.id_edycji) as "ilość sal"
+from edycje e;
+
+create or replace view full_communities_statistics as
+select s.id_spolecznosci as "id społeczności", s.nazwa as "nazwa", (select count(distinct c.id_czlonka) from czlonkowie_spolecznosci c where c.id_spolecznosci = s.id_spolecznosci) as "ilość członków",
+(select count(*) from wydarzenia_spolecznosci m where m.id_spolecznosci = s.id_spolecznosci) as "ilość współorganizowanych wydarzeń",
+(select count(*) from posty where id_spolecznosci = s.id_spolecznosci) as "ilość postów", (select count(*) from posty where id_spolecznosci = s.id_spolecznosci
+and id_posta_nad is null) as "ilość wątków"
+from spolecznosci s;
+
+create or replace function register_trigger() returns trigger as $$
+begin
+    select register(NEW.nazwa_uzytkownika, NEW.email, NEW.imie, NEW.nazwisko, 'password', NEW.id_zamika, NEW.newsletter);
+    return old;
+end;
+$$ language plpgsql;
+
+create or replace function post_trigger() returns trigger as $$
+begin
+    select make_post(NEW.id_posta_nad, NEW.id_spolecznosci, NEW.id_czlonka, NEW.tytul, NEW.tresc);
+    return old;
+end;
+$$ language plpgsql;
+
+create or replace function volo_trigger() returns trigger as $$
+begin
+    select register_as_volonteer(NEW.id_czlonka, NEW.id_edycji);
+    return old;
+end;
+$$ language plpgsql;
+
+
+create or replace function archive() returns void as $$
+declare 
+user_to_archive record;
+post_to_archive record;
+last_post date;
+begin
+for post_to_archive in select * from posty loop
+    if(post_to_archive.data_dodania + '1 year'::interval < NOW()) then
+        update posty p set id_posta_nad = post_to_archive.id_posta_nad where p.id_posta_nad = post_to_archive.id_posta;
+        update posty p set id_posta_nad = null where p.id_posta_nad = post_to_archive.id_posta;
+
+        insert into posty_archiwum values (post_to_archive.id_posta, post_to_archive.id_posta_nad,
+        post_to_archive.id_spolecznosci, post_to_archive.id_czlonka, post_to_archive.data_dodania, 
+        post_to_archive.tytul, post_to_archive.tresc);
+        delete from posty p where p.id_posta = post_to_archive.id_posta;
+    end if;
+end loop;
+for user_to_archive in select * from czlonkowie loop
+    last_post = null;
+    if(user_to_archive.data_dolaczenia + '1 year'::interval < NOW()) then 
+        last_post = (select max(data_dodania) from posty where id_czlonka = user_to_archive.id_czlonka);
+        if(last_post is null) then 
+            delete from czlonkowie_edycje where id_czlonka = user_to_archive.id_czlonka;
+            delete from czlonkowie_spolecznosci where id_czlonka = user_to_archive.id_czlonka;
+            delete from wolontariusze where id_czlonka = user_to_archive.id_czlonka;
+            delete from organizatorzy where id_czlonka = user_to_archive.id_czlonka;
+            update prelegenci p set id_czlonka = null where p.id_czlonka = user_to_archive.id_czlonka;
+            insert into czlonkowie_archiwum values (user_to_archive.id_czlonka, user_to_archive.id_zaimka, user_to_archive.nazwa_uzytkownika,
+            user_to_archive.email, user_to_archive.imie, user_to_archive.nazwisko, user_to_archive.newsletter, user_to_archive.data_dolaczenia);
+            delete from czlonkowie where id_czlonka = user_to_archive.id_czlonka;
+        end if;
+    end if;
+
+end loop;
+end;
+$$ language plpgsql;
+
+create or replace function prelegent_trigger() returns trigger as $$
+
+begin
+if(new.id_czlonka is not null) then 
+new.imie = (select s.imie from czlonkowie s where s.id_czlonka = new.id_czlonka);
+new.nazwisko = (select s.nazwisko from czlonkowie s where s.id_czlonka = new.id_czlonka);
+end if;
+
+return new;
+end;
+$$ language plpgsql;
+
+create or replace function czlonkowie_trigger() returns trigger as $$
+declare
+k record;
+begin
+for k in (select * from prelegenci where id_czlonka = new.id_czlonka) loop
+    update prelegenci p set id_czlonka = k.id_czlonka where p.id_czlonka = k.id_czlonka;
+end loop;
+return new;
+end;
+$$ language plpgsql;
+
+create or replace function ce_trigger() returns trigger as $$
+begin
+if(
+    exists(select * from czlonkowie_spolecznosci cs where cs.id_czlonka = NEW.id_czlonka 
+and exists(select * from wydarzenia_spolecznosci ce
+where ce.id_wydarzenia = (select e.id_wydarzenia from edycje e where e.id_edycji = NEW.id_edycji) and ce.id_spolecznosci = cs.id_spolecznosci))) then
+return NEW;
+end if;
+return OLD;
+end;
+$$ language plpgsql;
+
+create or replace function wp_trigger() returns trigger as $$
+begin
+if(exists(select * from wolontariusze where id_czlonka = NEW.id_czlonka and id_edycji = (select p.id_edycji from prelekcje p
+where p.id_prelekcji = NEW.id_prelekcji))) then
+return NEW;
+end if;
+return OLD;
+end;
+$$ language plpgsql;
+
+create or replace function wolontariusze_trigger() returns trigger as $$
+begin
+if(exists(select * from czlonkowie_edycje where id_czlonka = NEW.id_czlonka and id_edycji = NEW.id_edycji)) then
+return NEW;
+end if;
+return OLD;
+end;
+$$ language plpgsql;
+
+create or replace function wolontariusze_delete_trigger() returns trigger as $$
+declare 
+k record;
+begin
+for k in (select * from prelekcje where id_edycji = OLD.id_edycji) loop
+    delete from wolontariusze_prelekcje where id_czlonka = OLD.id_czlonka and id_prelekcji = k.id_prelekcji;
+end loop;
+return OLD;
+end;
+$$ language plpgsql;
+
+create or replace function ce_delete_trigger() returns trigger as $$
+begin
+    delete from wolontariusze where id_czlonka = OLD.id_czlonka and id_edycji = OLD.id_edycji;
+    return OLD;
+end;
+$$ language plpgsql;
+
+create trigger czlonkowie_check after update on czlonkowie for each row execute procedure czlonkowie_trigger();
+create trigger prelegenci_check before insert or update on prelegenci for each row execute procedure prelegent_trigger();
+create trigger czlonkowie_edycje_check before insert or update on czlonkowie_edycje for each row execute procedure ce_trigger();
+create trigger wp_check before insert or update on wolontariusze_prelekcje for each row execute procedure wp_trigger();
+create trigger wolontariusze_check before insert or update on wolontariusze for each row execute procedure wolontariusze_trigger();
+create trigger ce_delete_check before delete on czlonkowie_edycje for each row execute procedure ce_delete_trigger();
+create trigger wolo_delete_check before delete on wolontariusze for each row execute procedure wolontariusze_delete_trigger();
