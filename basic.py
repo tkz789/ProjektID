@@ -26,7 +26,6 @@ class User(UserMixin):
             cur.execute("SELECT COUNT(*) > 0 from czlonkowie_spolecznosci where id_czlonka = %s and id_roli = 1", (self.id,)) 
             self.is_admin = cur.fetchone()[0]
             print(self.is_admin, file=sys.stderr)
-        conn.commit()
         conn.close()
 
     def __str__(self) -> str:
@@ -88,11 +87,11 @@ def register():
             password = generate_password_hash(form.password.data)
             pronoun_id = None  # Replace with actual pronoun_id if applicable
             newsletter = form.newsletter.data if 'newsletter' in form else True
-            conn = get_db_connection()
-            curr = conn.cursor()
-            curr.execute('SELECT register(%s, %s, %s, %s, %s, %s, %s)', (username, email, imie, nazwisko, password, pronoun_id, newsletter))
-            conn.commit()
-            flash('Account created successfully!', 'success')
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute('SELECT register(%s, %s, %s, %s, %s, %s, %s)', (username, email, imie, nazwisko, password, pronoun_id, newsletter))
+                    conn.commit()
+                    flash('Account created successfully!', 'success')
 
         except Exception as e:
             flash(str(e), 'danger')
@@ -106,21 +105,21 @@ def login():
     print("przed formularzem", form.is_submitted(), form.validate(), file=sys.stderr)
     if form.is_submitted():
         print("Przed zapytaniem", file=sys.stderr)
-        conn = get_db_connection()
-        cur = conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
-        password = form.password.data
-        username = form.username.data
-        remember = form.remember.data
-        user = None
-        user_id = None
-        try:
-            cur.execute("select get_user_id(%s) as user_id", (username,))
-            user_id = cur.fetchone()
-            cur.execute("select * from czlonkowie where id_czlonka = %s", (user_id['user_id'],))
-            user = User(cur.fetchone())
-            conn.commit()
-        except:
-            conn.rollback()
+        with get_db_connection() as conn:
+            with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cur:
+                password = form.password.data
+                username = form.username.data
+                remember = form.remember.data
+                user = None
+                user_id = None
+                try:
+                    cur.execute("select get_user_id(%s) as user_id", (username,))
+                    user_id = cur.fetchone()
+                    cur.execute("select * from czlonkowie where id_czlonka = %s", (user_id['user_id'],))
+                    user = User(cur.fetchone())
+                    conn.commit()
+                except:
+                    conn.rollback()
         print("TEST", file=sys.stderr)
         print(user_id, user, file=sys.stderr)
 
@@ -174,38 +173,26 @@ def statistics():
 
 
 def get_posts(community_id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-
-    cur.execute('SELECT * FROM get_posts(%s)', (community_id,))
-    posts = cur.fetchall()
-
-    cur.close()
-    conn.close()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute('SELECT * FROM get_posts(%s)', (community_id,))
+            posts = cur.fetchall()
 
     return posts
 
 def get_post(post_id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-
-    cur.execute('SELECT * FROM posty WHERE id_posta = %s', (post_id,))
-    post = cur.fetchone()
-
-    cur.close()
-    conn.close()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute('SELECT * FROM posty WHERE id_posta = %s', (post_id,))
+            post = cur.fetchone()
 
     return post
 
 def get_communities_with_names(member_id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-
-    cur.execute('SELECT * FROM get_communities_with_names(%s)', (member_id,))
-    communities = cur.fetchall()
-
-    cur.close()
-    conn.close()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute('SELECT * FROM get_communities_with_names(%s)', (member_id,))
+            communities = cur.fetchall()
 
     return communities
 
@@ -483,6 +470,32 @@ def join_community():
     cur.close()
     conn.close()
     return render_template('html/join_community.html', user=current_user, spolecznosci=spolecznosci)
+
+@app.route('/join_event', methods=['GET','POST'])
+@login_required
+def join_event():
+    if request.method == "POST":
+        id_edycji = request.form["edition_id"]
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                try:
+                    cur.execute("SELECT add_czlonek_to_edycja(%s, %s)", (current_user.id, id_edycji)) #TODO
+                    conn.commit()
+                    flash("Dołączono do wydarzenia!")
+                except:
+                    conn.rollback()
+                    flash("Nie można dołączyć do wybranej edycji!")
+        return redirect(url_for('dashboard'))
+
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""SELECT id_edycji, nazwa, podtytul from edycje join wydarzenia using (id_wydarzenia)
+                        join wydarzenia_spolecznosci using (id_wydarzenia)
+                        join czlonkowie_spolecznosci using (id_spolecznosci)
+                        where id_czlonka = %s and current_date <= data_zakonczenia""", (current_user.id,))
+            events = cur.fetchall()
+
+    return render_template('html/join_event.html', user=current_user, events=events)
 
 if __name__ == '__main__':
     app.run(debug=True)

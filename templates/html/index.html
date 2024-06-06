@@ -30,6 +30,9 @@
                     <li><button class="btn" href="{{url_for('login')}}">Zaloguj</button></li>
                 </a>
                 {% else %}
+                <a href="{{ url_for('dashboard') }}">
+                    <li>Panel</li>
+                </a>
                 <a href="{{url_for('logout')}}">
                     <li><button class="btn" href="{{url_for('logout')}}">Wyloguj</button></li>
                 </a>

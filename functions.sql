@@ -1,16 +1,3 @@
--- create or replace function login(username varchar(30), g_password varchar(162)) returns integer as $$
--- declare user_id integer;
--- user_password varchar(50);
--- begin
--- user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = username);
--- if(user_id is null) then raise exception 'Niepoprawna nazwa uzytkownika'; end if;
--- user_password = (select haslo from hasla where id_czlonka = user_id 
--- and data_od = (select max(h.data_od) from hasla h where h.id_czlonka = user_id));
--- if(user_password is null or g_password != user_password) then raise exception 'Wprowadzone haslo jest nieprawidlowe'; end if;
--- return user_id;
--- end;
--- $$ language plpgsql;
-
 create or replace function get_user_id(username varchar(30)) returns integer as $$
 declare user_id integer default -1;
 begin

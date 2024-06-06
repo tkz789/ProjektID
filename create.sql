@@ -118,17 +118,6 @@ CREATE TABLE "prelekcje_prelegenci" (
   UNIQUE("id_prelegenta", "id_prelekcji")
 );
 
--- CREATE TABLE "hasla" (
---   "id_czlonka" integer NOT NULL,
---   "data_od" date NOT NULL,
---   "haslo" varchar(162) NOT NULL
--- );
-
--- CREATE TABLE "hasla_archiwum" (
---   "id_czlonka" integer NOT NULL,
---   "data_od" date NOT NULL,
---   "haslo" varchar(162) NOT NULL
--- );
 
 CREATE TABLE "posty" (
   "id_posta" serial PRIMARY KEY,
@@ -163,7 +152,7 @@ CREATE TABLE "organizatorzy" (
   UNIQUE("id_czlonka", "id_edycji")
 );
 
-create table "adresy" (
+CREATE TABLE "adresy" (
   "id_adresu" serial primary KEY,
   "adres" varchar(100) not null
 );
@@ -219,5 +208,3 @@ ALTER TABLE "czlonkowie" ADD FOREIGN KEY ("id_zaimka") REFERENCES "zaimki" ("id_
 ALTER TABLE "wolontariusze" ADD FOREIGN KEY ("id_czlonka") REFERENCES "czlonkowie" ("id_czlonka");
 
 ALTER TABLE "wolontariusze" ADD FOREIGN KEY ("id_edycji") REFERENCES "edycje" ("id_edycji");
-
---ALTER TABLE "hasla" ADD FOREIGN KEY ("id_czlonka") REFERENCES "czlonkowie" ("id_czlonka");
