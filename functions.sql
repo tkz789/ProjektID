@@ -1,3 +1,16 @@
+-- create or replace function login(username varchar(30), g_password varchar(162)) returns integer as $$
+-- declare user_id integer;
+-- user_password varchar(50);
+-- begin
+-- user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = username);
+-- if(user_id is null) then raise exception 'Niepoprawna nazwa uzytkownika'; end if;
+-- user_password = (select haslo from hasla where id_czlonka = user_id 
+-- and data_od = (select max(h.data_od) from hasla h where h.id_czlonka = user_id));
+-- if(user_password is null or g_password != user_password) then raise exception 'Wprowadzone haslo jest nieprawidlowe'; end if;
+-- return user_id;
+-- end;
+-- $$ language plpgsql;
+
 create or replace function get_user_id(username varchar(30)) returns integer as $$
 declare user_id integer default -1;
 begin
@@ -417,12 +430,50 @@ return OLD;
 end;
 $$ language plpgsql;
 
+create or replace function wp_trigger() returns trigger as $$
+begin
+if(exists(select * from wolontariusze where id_czlonka = NEW.id_czlonka and id_edycji = (select p.id_edycji from prelekcje p
+where p.id_prelekcji = NEW.id_prelekcji))) then
+return NEW;
+end if;
+return OLD;
+end;
+$$ language plpgsql;
 
-create trigger czlonkowie_edycje_check before insert or update on czlonkowie_edycje for each row execute procedure ce_trigger();
+create or replace function wolontariusze_trigger() returns trigger as $$
+begin
+if(exists(select * from czlonkowie_edycje where id_czlonka = NEW.id_czlonka and id_edycji = NEW.id_edycji)) then
+return NEW;
+end if;
+return OLD;
+end;
+$$ language plpgsql;
+
+create or replace function wolontariusze_delete_trigger() returns trigger as $$
+declare 
+k record;
+begin
+for k in (select * from prelekcje where id_edycji = OLD.id_edycji) loop
+    delete from wolontariusze_prelekcje where id_czlonka = OLD.id_czlonka and id_prelekcji = k.id_prelekcji;
+end loop;
+return OLD;
+end;
+$$ language plpgsql;
+
+create or replace function ce_delete_trigger() returns trigger as $$
+begin
+    delete from wolontariusze where id_czlonka = OLD.id_czlonka and id_edycji = OLD.id_edycji;
+    return OLD;
+end;
+$$ language plpgsql;
 
 create trigger czlonkowie_check after update on czlonkowie for each row execute procedure czlonkowie_trigger();
 create trigger prelegenci_check before insert or update on prelegenci for each row execute procedure prelegent_trigger();
-
+create trigger czlonkowie_edycje_check before insert or update on czlonkowie_edycje for each row execute procedure ce_trigger();
+create trigger wp_check before insert or update on wolontariusze_prelekcje for each row execute procedure wp_trigger();
+create trigger wolontariusze_check before insert or update on wolontariusze for each row execute procedure wolontariusze_trigger();
+create trigger ce_delete_check before delete on czlonkowie_edycje for each row execute procedure ce_delete_trigger();
+create trigger wolo_delete_check before delete on wolontariusze for each row execute procedure wolontariusze_delete_trigger();
 
 
 

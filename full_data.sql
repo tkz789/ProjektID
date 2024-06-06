@@ -389,6 +389,18 @@ INSERT INTO czlonkowie_spolecznosci (id_czlonka, id_spolecznosci, id_roli) VALUE
 (49, 1 ,2),
 (50, 2 ,2);
 
+
+INSERT INTO czlonkowie_edycje (id_czlonka, id_edycji) VALUES
+(1, 4),
+(2, 1),
+(9, 4),
+(31, 1),
+(34, 1),
+(37, 3),
+(38, 3),
+(44, 2),
+(50, 2);
+
 INSERT INTO wolontariusze (id_czlonka, id_edycji) VALUES
 (1, 4),
 (2, 1),
