@@ -14,12 +14,12 @@
     
     <h2 class="h2_form smaller">Aktualne i nadchodzace wydarzenia</h2>
     {% if current_future_editions %}
-      <ul>
+      <ul class="form_regist avoid_margin">
         {% for edition in current_future_editions %}
           <li>
-            <form class="form_regist"  action="{{ url_for('events') }}" method="get">
+            <form   action="{{ url_for('events') }}" method="get">
               <input type="hidden" name="edition_id" value="{{ edition[0] }}">
-              <button type="submit">{{ edition[1] }} (Edition {{ edition[0] }}): {{ edition[2] }} to {{ edition[3] }}</button>
+              <button class="btn" type="submit">{{ edition[1] }} (Edition {{ edition[0] }}): {{ edition[2] }} to {{ edition[3] }}</button>
             </form>
           </li>
         {% endfor %}
@@ -42,7 +42,7 @@
         {% endfor %}
       </ul>
     {% else %}
-      <p class="form_regist">No past editions available.</p>
+      <p class="form_regist">Brak wcześniejszych wydarzeń</p>
     {% endif %}
 </div>
 <a class="btn" href="{{ url_for('dashboard') }}">Powrót</a>
