@@ -3,6 +3,11 @@
   padding: 0;
 
 }
+.monoton-regular {
+	font-family: "Monoton", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+  }
     body {
         background-color: #fff;
         font-family: 'Roboto', sans-serif;
@@ -175,10 +180,11 @@
           #name_website{
             color: black;
           }
-          #phot{
-            width: 20%;
-            height: 20%;
-            box-shadow: 2rem 2rem 0px #070722;
+          #photo{
+            width: 30vw;
+            height: 30vw;
+            box-shadow: 25px 25px 0px #070722;
+            margin-top: 3vw;
           }
         
         
@@ -213,10 +219,67 @@
         
         border: solid 2px #011EFF;
         }
-        #photo{
-            width: 40%;
-            height: 40%;
-            box-shadow: 2rem 2rem 0px #070722;
-            margin: 30px;
-        }
+       
+        .form_regist{
+          border: solid 2px #011EFF;
+          border-radius: 15%;
+          padding: 5vw;
+          margin-bottom: -2vw;
         
+        }
+        .form_regist #submit{
+          font-family: Roboto, sans-serif;
+        font-weight: 0;
+        font-size: 14px;
+        color: #fff;
+        background: linear-gradient(90deg, #011EFF 0%, #c500cc 100%);
+        padding: 10px 30px;
+        border: 2px solid #011EFF;
+        box-shadow: rgb(0, 0, 0) 0px 0px 0px 0px;
+        border-radius: 50px;
+        transition : 1000ms;
+        transform: translateY(0);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        cursor: pointer;
+        }
+        .form_regist #submit:hover{
+        
+          transition : 1000ms;
+          padding: 10px 50px;
+          transform : translateY(-0px);
+          background: linear-gradient(90deg, #011EFF 0%, #c500cc 100%);
+          
+          border: solid 2px #011EFF;
+          }
+        
+          .h2_form{
+            font-family: "Monoton", sans-serif;
+          font-weight: 400;
+          font-style: normal;
+          font-size: 05vw;
+          margin-bottom: 2vw;
+          color: #070722;
+          }
+          .holly_center_pls_press_f_for_coder{
+            display: grid;
+            align-items: center;
+            justify-items: center;
+            color: #070722;
+          }
+          .form_regist div{
+            margin: 1vw;
+            font-size: medium;
+            font-family: Roboto, sans-serif;
+          }
+          .high-contrast {
+            filter: invert(1);
+            }
+            .rotated-font {
+            transform: rotate(20deg);
+            }
+            .dark {
+            background-color: #333;
+            color: #fff;
+            }

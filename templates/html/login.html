@@ -3,17 +3,30 @@
 {% block style %}style_login.css{% endblock %}
 
 {% block body %}
-<div class="container">
-    
-    <form id="login-form">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username"><br><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password"><br><br>
-        <input  class="btn" type="submit" value="Login">
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+<div class="holly_center_pls_press_f_for_coder">
+    <h3 class="h2_form">Logowanie</h3>
+    {{ form.hidden_tag() }}
+    <form class="form_regist" id="login-form" method="POST">
+        {{ form.username.label }} {{ form.username }}
+        <br><br>
+        {{ form.password.label }} {{ form.password }}
+        <br><br>
+        {{ form.remember.label }} {{ form.remember }}
+        <br><br>
+        {{ form.submit }}
     </form>
+   
     <div id="error-message"></div>
+    <a class="btn" href="{{ url_for('home') }}">Powrót</a>
 </div>
+
 <img id="photo" src="static/images/log_phot.png">
 {% endblock %}
 

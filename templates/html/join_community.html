@@ -1,0 +1,18 @@
+{% extends "html/index.html" %}
+
+{% block body %}
+
+<form method="POST">
+    <div>
+        <select class="btn" name="community_id" id="community_id">
+            {% for i in spolecznosci %}
+                <option value="{{ i[0] }}" > {{ i[1] }} </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <button class="btn" id="submit" type="submit">Dołącz</button>
+    </div>
+</form>
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "html/index.html" %}
+
+{% block body %}
+
+{% if events|length > 0 %}
+<form method="POST">
+    <div>
+        <select class="btn" name="edition_id" id="edition_id">
+            {% for i in events %}
+                <option value="{{ i[0] }}" > {{ i[1] }} - {{ i[2] }} </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <button class="btn" id="submit" type="submit">Dołącz</button>
+    </div>
+</form>
+{% else %}
+<p>Brak wydarzeń,do których możesz dołączyć!</p>
+{% endif %}
+
+{% endblock %}

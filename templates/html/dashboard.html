@@ -1,21 +1,26 @@
 {% extends "html/index.html" %}
-{% block title %}Rejestracja  rozmowy{% endblock %}
+{% block title %}Panel główny{% endblock %}
 {% block body %}
 
-{% with messages = get_flashed_messages(with_categories=true) %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+
     {% if messages %}
         {% for category, message in messages %}
             <div class="alert alert-{{ category }}">{{ message }}</div>
         {% endfor %}
     {% endif %}
-    {% endwith %}
+  {% endwith %}
     <div class="holly_center_pls_press_f_for_coder">
-    <h2>Witaj {{ user }}</h2>
-    <br>
-    <a class="btn" href="{{ url_for('admin_panel') }}">Panel administratora</a><br>
-    <a class="btn" href="{{ url_for('feed') }}">Feed</a>
-    <a class="btn" href="{{ url_for('events') }}">Wydarzenia</a>
-  </div>
-</div>
-<img id="photo" src="static/images/log_phot.png">
-  {% endblock %}
+      <h2>Witaj, {{ username }}</h2>
+      <br>
+      {% if user.is_admin %}
+        <a class="btn" href="{{ url_for('admin_panel') }}">Panel administratora</a><br>
+      {% endif %}
+      <a class="btn" href="{{ url_for('feed') }}">Feed</a>
+      <a class="btn" href="{{ url_for('events') }}">Wydarzenia</a>
+      <a class="btn" href="{{ url_for('join_community') }}">Dołącz do społeczności</a>
+      <a class="btn" href="{{ url_for('join_event') }}">Dołącz do wydarzenia</a>
+    </div>
+  <img id="photo" src="static/images/log_phot.png">
+{% endblock %}
+

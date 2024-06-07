@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Statystyki edycji</h1>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>ID Edycji</th>
+                    <th>Wydarzenie</th>
+                    <th>Numer Edycji</th>
+                    <th>Liczba Uczestników</th>
+                    <th>Liczba Organizatorów</th>
+                    <th>Liczba Prelegentów</th>
+                    <th>Liczba Wolontariuszy</th>
+                    <th>Ilość Prelekcji</th>
+                    <th>Ilość Sal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in stats %}
+                <tr>
+                    <td>{{ stat[0] }}</td>
+                    <td>{{ stat[1] }}</td>
+                    <td>{{ stat[2] }}</td>
+                    <td>{{ stat[3] }}</td>
+                    <td>{{ stat[4] }}</td>
+                    <td>{{ stat[5] }}</td>
+                    <td>{{ stat[6] }}</td>
+                    <td>{{ stat[7] }}</td>
+                    <td>{{ stat[8] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="container">
+        <h1 class="mt-5">Statystyki społeczności</h1>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>ID Społeczności</th>
+                    <th>Nazwa</th>
+                    <th>Ilość Członków</th>
+                    <th>Ilość Współorganizowanych Wydarzeń</th>
+                    <th>Ilość Postów</th>
+                    <th>Ilość Wątków</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat2 in stats2 %}
+                <tr>
+                    <td>{{ stat2[0] }}</td>
+                    <td>{{ stat2[1] }}</td>
+                    <td>{{ stat2[2] }}</td>
+                    <td>{{ stat2[3] }}</td>
+                    <td>{{ stat2[4] }}</td>
+                    <td>{{ stat2[5] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

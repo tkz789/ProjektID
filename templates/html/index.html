@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Strona główna{% endblock %} - PassionTown</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="/static/styles/{% block style %}styles.css{% endblock %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="static/styles/nav_style.css">
+    <link rel="icon" href="static/images/icon.png" type="image/gif" sizes="40x40">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jersey+25+Charted&family=Monoton&display=swap" rel="stylesheet">
 </head>
@@ -22,9 +25,18 @@
                 <a href="{{ url_for('aboutus') }}">
                     <li>O nas</li>
                 </a>
+                {% if not (user and user.is_authenticated) %}
                 <a href="{{url_for('login')}}">
                     <li><button class="btn" href="{{url_for('login')}}">Zaloguj</button></li>
                 </a>
+                {% else %}
+                <a href="{{ url_for('dashboard') }}">
+                    <li>Panel</li>
+                </a>
+                <a href="{{url_for('logout')}}">
+                    <li><button class="btn" href="{{url_for('logout')}}">Wyloguj</button></li>
+                </a>
+                {% endif %}
             </ul>
             <button class="nav-toggle">
             <span></span>
@@ -34,10 +46,10 @@
         </nav>
         <div id="container__buttons">
 
-            <input type="button" name="bigger" value="A++" onclick="changeSizeB()">
-            <input type="button" name="lower" value="A--" onclick="changeSizeS()">
-            <input type="button" name="contrast" value="🌓" onclick="contrastPlease()">
-
+            <input type="button" name="bigger" value="A++" onclick="zmienCzcionke(1)">
+            <input type="button" name="lower" value="A--" onclick="zmienCzcionke(-1)">
+            <input type="button" name="contrast" value="🌓" onclick="wysokiKontrast()">
+            <input type="button" name="contrast" value="🌑" onclick="toggleDarkMode()">
         </div>
     </header>
     <main>
@@ -50,10 +62,18 @@
         <img id="phot" src="static/images/phot.png">
         </section>
         <section class="sect_lower">
-           <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem aspernatur modi distinctio totam rerum! Delectus ullam voluptatum esse nihil veniam sint, atque ipsum, natus tenetur non alias facere sequi magnam?</p>
+           <p><b>Dołącz do PassionTown – Twojego Nowego Miejsca dla Pasjonatów!</b><br>
+            Cześć! Czy masz hobby, które pochłania Twoje myśli i serce? A może szukasz inspiracji, by odkryć nowe zainteresowania? Niezależnie od tego, czym się pasjonujesz, mamy dla Ciebie idealne miejsce!
+            
+            PassionTown to dynamiczne forum stworzone z myślą o ludziach takich jak Ty – pełnych entuzjazmu, pasji i innowacji. Nasza społeczność składa się z ludzi, którzy kochają dzielić się swoimi zainteresowaniami, uczyć się od innych i nawiązywać nowe znajomości. Dołącz do nas i stań się częścią czegoś wyjątkowego!</p>
             
         </section>
-        <button class="btn">Dołącz do nas!!</button>
+      
+        <ul class="button_ul">
+        <a href="{{url_for('register')}}">
+            <li><button class="btn" href="{{url_for('register')}}">Rejestracja!</button></li>
+        </a>
+    </ul>
         <section class="inter">
             <h2>Grupy zainteresowań:</h2>
             <ul>
@@ -68,5 +88,41 @@
         <p>&copy; 2024 PassionTown</p>
     </footer>
 </body>
-<script src="static/js/script.js"></script>
+<script>
+  let czcionka = 1;
+
+function zmienCzcionke(zmiana) {
+    const elements = document.querySelectorAll('*');
+  elements.forEach((element) => {
+    const fontSize = getComputedStyle(element).fontSize;
+    const newSize = parseFloat(fontSize) + zmiana;
+    element.style.fontSize = newSize + 'px';
+});
+}
+
+function przechylCzcionke() {
+  document.body.classList.toggle("rotated-font");
+}
+
+function wysokiKontrast() {
+  document.body.classList.toggle("high-contrast");
+}  
+function toggleDarkMode() {
+  let theme = localStorage.getItem('theme') || 'light';
+  if (theme === 'light') {
+    document.body.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  } else {
+    document.body.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  }
+}
+const navToggle = document.querySelector('.nav-toggle');
+const navLinks = document.querySelector('.nav-links');
+
+navToggle.addEventListener('click', () => {
+  navLinks.classList.toggle('active');
+});
+
+</script>
 </html>

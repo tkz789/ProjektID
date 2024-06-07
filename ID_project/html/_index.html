@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PassionTown</title>
-    <link rel="stylesheet" href="../styles/style_login.css">
-    <link rel="stylesheet" href="../styles/nav_style.css">
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jersey+25+Charted&family=Monoton&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
@@ -40,18 +42,26 @@
 
 </header>
     <main>
-        <div class="container">
-           
-            <form id="login-form">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username"><br><br>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password"><br><br>
-                <input  class="btn" type="submit" value="Login">
-            </form>
-            <div id="error-message"></div>
+        <section class="sect_main">
+            <div class="text_main">
+            <h1>Zaloguj się po pasje!</h1>
+            <p>Środowisko dla pasjonatów każdej dziedziny od matematyków po rekodzieło...</p>
         </div>
-        <img id="photo" src="../images/log_phot.png">
+        <img id="phot" src="../images/phot.png">
+        </section>
+        <section class="sect_lower">
+           <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem aspernatur modi distinctio totam rerum! Delectus ullam voluptatum esse nihil veniam sint, atque ipsum, natus tenetur non alias facere sequi magnam?</p>
+            
+        </section>
+        <button class="btn">Dołącz do nas!!</button>
+        <section class="inter">
+            <h2>Grupy zainteresowań:</h2>
+            <ul>
+                <li>Matematyka</li>
+                <li>Rekodzieło</li>
+                <li>Informatyka</li>
+            </ul>
+        </section>
     </main>
     <footer>
         <p>&copy; 2024 PassionTown</p>

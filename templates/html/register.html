@@ -1,49 +1,39 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PassionTown</title>
-    <link rel="stylesheet" href="../styles/style_reg.css">
-</head>
-<body>
-    <header>
-        <div class="logoo">
-        <img id="logo" src="../images/logo.png">
-        <h3 id="name_website">PassionTown</h3></div>
-        <nav>
-            <ul>
-                <li><a href="../html/mainweb.html">Strona główna</a></li>
-                <li><a href="../html/aboutus.html">O nas</a></li>
-                <button class="btn" href="../html/login.html">Zaloguj</button>
-            </ul>
-            
-        </nav>
-        <!-- <button id="dark-mode-btn">Dark Mode</button>
-<button id="font-size-btn">Adjust Font Size</button> -->
-    </header>
-    <main>
-        <h1>Rejestracja</h1>
-        <div class="container">
-           
-            <form id="registrationForm">
-                <label for="username">Login:</label>
-                <input type="text" id="username" name="username"><br><br>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email"><br><br>
-                <label for="password">Hasło:</label>
-                <input type="password" id="password" name="password"><br><br>
-                <label for="confirmPassword">Potwiredź hasło:</label>
-                <input type="password" id="confirmPassword" name="confirmPassword"><br><br>
-                <button class="btn" type="submit">Gotowe!</button>
-            </form>
-            <div  id="error-message"></div>
+{% extends "html/index.html" %}
+{% block title %}Rejestracja{% endblock %}
+{% block body %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="holly_center_pls_press_f_for_coder">
+    <h2 class="h2_form">Rejestracja</h2>
+    <form class="form_regist" method="POST">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.username.label }} {{ form.username }}
         </div>
-        <img id="photo" src="../images/log_phot.png">
-    </main>
-    <footer>
-        <p>&copy; 2024 PassionTown</p>
-    </footer>
-</body>
-<script src="../js/register_script.js"></script>
-</html>
+        <div>
+            {{ form.email.label }} {{ form.email }}
+        </div>
+        <div>
+            {{ form.imie.label }} {{ form.imie }}
+        </div>
+        <div>
+            {{ form.nazwisko.label }} {{ form.nazwisko }}
+        </div>
+        <div>
+            {{ form.password.label }} {{ form.password }}
+        </div>
+        <div>
+            {{ form.confirm_password.label }} {{ form.confirm_password }}
+        </div>
+        <div>
+            {{ form.submit }}
+        </div>
+    </form>
+    <a class="btn" href="{{ url_for('home') }}">Powrót</a>
+</div>
+{% endblock %}

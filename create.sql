@@ -24,7 +24,8 @@ CREATE TABLE "czlonkowie_spolecznosci" (
   "id_czlonka" integer NOT NULL,
   "id_spolecznosci" integer NOT NULL,
   "id_roli" integer NOT NULL,
-  UNIQUE("id_czlonka", "id_spolecznosci")
+  UNIQUE("id_czlonka", "id_spolecznosci"),
+  primary key("id_czlonka", "id_spolecznosci", "id_roli")
 );
 
 CREATE TABLE "role" (
@@ -38,14 +39,14 @@ CREATE TABLE "edycje" (
   "id_wydarzenia" integer NOT NULL,
   "data_rozpoczecia" date NOT NULL,
   "data_zakonczenia" date NOT NULL,
-  "miejsce" varchar NOT NULL,
+  "miejsce" int not null,
   "podtytul" varchar,
   CHECK ("nr_edycji" > 0)
 );
 
 CREATE TABLE "sale" (
   "id_sali" serial PRIMARY KEY,
-  "adres" varchar(100) NOT NULL,
+  "adres" int NOT NULL,
   "nazwa" varchar(20) NOT NULL,
   "pojemnosc" integer NOT NULL,
   CHECK ("pojemnosc" > 0)
@@ -64,7 +65,8 @@ CREATE TABLE "czlonkowie" (
   "imie" varchar(30) NOT NULL,
   "nazwisko" varchar(150) NOT NULL,
   "newsletter" bool,
-  "data_dolaczenia" date NOT NULL
+  "data_dolaczenia" date NOT NULL,
+  "haslo_hash" char(162)
 );
 
 CREATE TABLE "czlonkowie_archiwum" (
@@ -80,12 +82,14 @@ CREATE TABLE "czlonkowie_archiwum" (
 
 CREATE TABLE "czlonkowie_edycje" (
   "id_czlonka" integer NOT NULL,
-  "id_edycji" integer NOT NULL
+  "id_edycji" integer NOT NULL,
+  unique("id_czlonka", "id_edycji")
 );
 
 CREATE TABLE "edycje_sale" (
   "id_edycji" integer NOT NULL,
-  "id_sali" integer NOT NULL
+  "id_sali" integer NOT NULL,
+  unique("id_edycji", "id_sali")
 );
 
 CREATE TABLE "prelekcje" (
@@ -114,19 +118,7 @@ CREATE TABLE "prelegenci" (
 CREATE TABLE "prelekcje_prelegenci" (
   "id_prelegenta" integer NOT NULL,
   "id_prelekcji" integer NOT NULL,
-  UNIQUE("id_prelegenta", "id_prelekcji")
-);
-
-CREATE TABLE "hasla" (
-  "id_czlonka" integer NOT NULL,
-  "data_od" date NOT NULL,
-  "haslo" varchar(50) NOT NULL
-);
-
-CREATE TABLE "hasla_archiwum" (
-  "id_czlonka" integer NOT NULL,
-  "data_od" date NOT NULL,
-  "haslo" varchar(50) NOT NULL
+  primary key("id_prelegenta", "id_prelekcji")
 );
 
 CREATE TABLE "posty" (
@@ -153,14 +145,33 @@ CREATE TABLE "wolontariusze" (
   "id_czlonka" integer NOT NULL,
   "id_edycji" integer NOT NULL,
 
-  UNIQUE("id_czlonka", "id_edycji")
+  primary key("id_czlonka", "id_edycji")
 );
 
 CREATE TABLE "organizatorzy" (
   "id_czlonka" integer NOT NULL,
   "id_edycji" integer NOT NULL,
-  UNIQUE("id_czlonka", "id_edycji")
+  primary key("id_czlonka", "id_edycji")
 );
+
+CREATE TABLE "adresy" (
+  "id_adresu" serial primary KEY,
+  "adres" varchar(100) not null
+);
+
+CREATE TABLE "wolontariusze_prelekcje" (
+  "id_czlonka" integer not null,
+  "id_prelekcji" integer not null,
+  primary key("id_czlonka", "id_prelekcji")
+);
+
+ALTER TABLE "wolontariusze_prelekcje" ADD FOREIGN KEY ("id_czlonka") REFERENCES "czlonkowie" ("id_czlonka");
+
+ALTER TABLE "wolontariusze_prelekcje" ADD FOREIGN KEY ("id_prelekcji") REFERENCES "prelekcje" ("id_prelekcji");
+
+ALTER TABLE "edycje" ADD FOREIGN KEY ("miejsce") REFERENCES "adresy" ("id_adresu");
+
+ALTER TABLE "sale" ADD FOREIGN KEY ("adres") REFERENCES "adresy" ("id_adresu");
 
 ALTER TABLE "organizatorzy" ADD FOREIGN KEY ("id_czlonka") REFERENCES "czlonkowie" ("id_czlonka");
 
@@ -210,4 +221,3 @@ ALTER TABLE "wolontariusze" ADD FOREIGN KEY ("id_czlonka") REFERENCES "czlonkowi
 
 ALTER TABLE "wolontariusze" ADD FOREIGN KEY ("id_edycji") REFERENCES "edycje" ("id_edycji");
 
-ALTER TABLE "hasla" ADD FOREIGN KEY ("id_czlonka") REFERENCES "czlonkowie" ("id_czlonka");
