@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statistics</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container">
-        <h1 class="mt-5">Statystyki edycji</h1>
+{% extends "html/index.html" %}
+{% block title %}Rejestracja  rozmowy{% endblock %}
+{% block body %}
+
+    <div class="holly_center_pls_press_f_for_coder">
+        <h1 class="h2_form">Statystyki edycji</h1>
         <table class="table table-bordered mt-3">
             <thead>
                 <tr>
@@ -41,7 +36,7 @@
         </table>
     </div>
     <div class="container">
-        <h1 class="mt-5">Statystyki społeczności</h1>
+        <h1 class="h2_form">Statystyki społeczności</h1>
         <table class="table table-bordered mt-3">
             <thead>
                 <tr>
@@ -67,5 +62,5 @@
             </tbody>
         </table>
     </div>
-</body>
-</html>
+    <a class="btn" href="{{ url_for('dashboard') }}">Powrót</a>
+    {% endblock %}
