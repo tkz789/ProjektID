@@ -10,9 +10,9 @@
     {% endif %}
     {% endwith %}
     <div class="holly_center_pls_press_f_for_coder">
-    <h1 class="h2_form">Twoje edycje</h1>
+    <h1 class="h2_form">Twoje wydarzenia</h1>
     
-    <h2 class="h2_form smaller">Aktualne i nadchodzace edycje</h2>
+    <h2 class="h2_form smaller">Aktualne i nadchodzace wydarzenia</h2>
     {% if current_future_editions %}
       <ul>
         {% for edition in current_future_editions %}
@@ -25,10 +25,10 @@
         {% endfor %}
       </ul>
     {% else %}
-      <p class="form_regist avoid_margin">Brak aktualnie trwających i nadchodzących edycji.</p>
+      <p class="form_regist avoid_margin">Brak aktualnie trwających i nadchodzących wydarzeń.</p>
     {% endif %}
     
-    <h2 class="h2_form smaller">Poprzednie edycje</h2>
+    <h2 class="h2_form smaller">Poprzednie wydarzenia</h2>
     <br>
     {% if past_editions %}
       <ul class="form_regist">

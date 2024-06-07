@@ -1,8 +1,9 @@
 {% extends "html/index.html" %}
 
 {% block body %}
-
-<form method="POST">
+<div class="holly_center_pls_press_f_for_coder">
+    <h1 class="h2_form"></h1>
+<form class="form_regist " method="POST">
     <div>
         <select class="btn" name="community_id" id="community_id">
             {% for i in spolecznosci %}
@@ -12,7 +13,10 @@
     </div>
     <div>
         <button class="btn" id="submit" type="submit">Dołącz</button>
+        
     </div>
 </form>
-
+<a class="btn" href="{{ url_for('home') }}">Powrót</a>
+<img id="photo" src="static/images/log_phot.png">
+</div>
 {% endblock %}
