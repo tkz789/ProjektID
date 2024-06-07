@@ -24,15 +24,23 @@
   {% if is_volunteer %}
   <div>
     <form class="form_regist" method="POST">
-  <label for="join_id">Dołącz do pilnowania prelekcji:</label>
-  <select name="join_id" id="join_id">
-    {% for talk in absent %}
-      <option value="{{ talk[0] }}">{{ talk[1] }} : {{ talk[2] }}</option>
-    {% endfor %}
-  </select></div>
-  <div>
-  <button class="btn" type="submit">Dołącz!</button> </div>
-</form> 
+      <label for="join_id">Dołącz do pilnowania prelekcji:</label>
+      <select name="join_id" id="join_id">
+        {% for talk in absent %}
+          <option value="{{ talk[0] }}">{{ talk[1] }} : {{ talk[2] }}</option>
+        {% endfor %}
+      </select></div>
+      <button class="btn" type="submit" name="action" value="update">Dołącz!</button> 
+      </form>
+      <form class= "form_regist" method="POST">
+        <label for="leave_id">Przestań pilnować prelekcję:</label>
+        <select name="leave_id" id="leave_id">
+          {% for talk in present %}
+            <option value="{{ talk[0] }}">{{ talk[1] }} : {{ talk[2] }}</option>
+          {% endfor %}
+        </select></div>
+        <button class="btn"  name="action" value="delete" type="submit">Opuść!</button> 
+      </form>
   {% endif %}
     <h1 class="h2_form bigger">Prelekcje</h1>
     {% for date, events in timetable.items() %}
