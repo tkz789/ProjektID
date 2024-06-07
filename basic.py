@@ -6,7 +6,6 @@ import sys
 import os
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import RegistrationForm, LoginForm
 from datetime import date, timedelta
 
 app = Flask(__name__)
@@ -15,7 +14,7 @@ app.secret_key = "haszcze_W_kleszczach"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'login' # type: ignore
 
 class User(UserMixin):
     def __init__(self, data) -> None:
@@ -25,7 +24,7 @@ class User(UserMixin):
         conn = get_db_connection()
         with conn.cursor() as cur:
             cur.execute("SELECT COUNT(*) > 0 from czlonkowie_spolecznosci where id_czlonka = %s and id_roli = 1", (self.id,)) 
-            self.is_admin = cur.fetchone()[0]
+            self.is_admin = cur.fetchone()[0] # type: ignore
         conn.close()
 
     def __str__(self) -> str:
@@ -35,7 +34,7 @@ class User(UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     with get_db_connection() as conn:
-        with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cur:
+        with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cur: # type: ignore
             user = None
             try:
                 cur.execute("SELECT * from czlonkowie where id_czlonka = %s", (user_id,))
@@ -54,6 +53,13 @@ def get_db_connection():
     )
     return conn
 
+def get_pronouns():
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * from zaimki")
+            return cur.fetchall()
+
+from forms import RegistrationForm, LoginForm
 
 @app.route('/')
 def index():
@@ -81,7 +87,9 @@ def register():
         imie = form.imie.data
         nazwisko = form.nazwisko.data
         password = generate_password_hash(form.password.data)
-        pronoun_id = None  # Replace with actual pronoun_id if applicable
+        pronoun_id: int | None = int(form.pronouns.data[0])
+        if pronoun_id == 0:
+            pronoun_id = None
         newsletter = form.newsletter.data if 'newsletter' in form else True
         with get_db_connection() as conn:
             with conn.cursor() as cur:
@@ -100,7 +108,7 @@ def login():
     form = LoginForm()
     if form.is_submitted():
         with get_db_connection() as conn:
-            with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cur:
+            with conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor) as cur: # type: ignore
                 password = form.password.data
                 username = form.username.data
                 remember = form.remember.data
@@ -109,13 +117,13 @@ def login():
                 try:
                     cur.execute("select get_user_id(%s) as user_id", (username,))
                     user_id = cur.fetchone()
-                    cur.execute("select * from czlonkowie where id_czlonka = %s", (user_id['user_id'],))
+                    cur.execute("select * from czlonkowie where id_czlonka = %s", (user_id['user_id'],)) # type: ignore
                     user = User(cur.fetchone())
                     conn.commit()
                 except:
                     conn.rollback()
 
-        if user and check_password_hash(user.data['haslo_hash'], password):
+        if user and check_password_hash(user.data['haslo_hash'], password): # type: ignore
             login_user(user, remember=remember)
             return redirect(url_for('dashboard'))
         else:
@@ -431,7 +439,7 @@ def events():
         with get_db_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT count(*) > 0 from czlonkowie_edycje where id_czlonka = %s and id_edycji = %s", (current_user.id, edition_id))
-                if cur.fetchone()[0] == False:
+                if cur.fetchone()[0] == False: # type: ignore
                     flash("Nie masz dostępu do tej edycji!")
                     return redirect(url_for('dashboard'))
 
@@ -447,7 +455,7 @@ def events():
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("SELECT EXISTS(SELECT 1 FROM wolontariusze WHERE id_edycji = %s and id_czlonka = %s)", (edition_id, current_user.data["id_czlonka"]))
-        is_volunteer = cur.fetchone()[0]
+        is_volunteer = cur.fetchone()[0] # type: ignore
         cur.execute("SELECT p.id_prelekcji, p.data_prelekcji, p.temat from prelekcje p where p.id_edycji = %s and not exists(select * from wolontariusze_prelekcje q where q.id_prelekcji = p.id_prelekcji and q.id_czlonka = %s)", (edition_id, current_user.data["id_czlonka"]))
         avaible_prelections = cur.fetchall()
         cur.execute("SELECT p.id_prelekcji, p.data_prelekcji, p.temat from prelekcje p where p.id_edycji = %s and exists(select * from wolontariusze_prelekcje q where q.id_prelekcji = p.id_prelekcji and q.id_czlonka = %s)", (edition_id, current_user.data["id_czlonka"]))
