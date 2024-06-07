@@ -3,6 +3,7 @@
 {% block body %}
 
   {% with messages = get_flashed_messages(with_categories=true) %}
+
     {% if messages %}
         {% for category, message in messages %}
             <div class="alert alert-{{ category }}">{{ message }}</div>
@@ -22,3 +23,4 @@
     </div>
   <img id="photo" src="static/images/log_phot.png">
 {% endblock %}
+
