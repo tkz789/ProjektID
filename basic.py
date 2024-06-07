@@ -294,10 +294,13 @@ def register_talk():
     cur.execute('SELECT dlugosc_prelekcji, dlugosc FROM dlugosci')
     lengths = cur.fetchall()
 
+    cur.execute('SELECT * FROM full_edition_statistics')
+    editions = cur.fetchall()
+
     cur.close()
     conn.close()
 
-    return render_template('html/register_talk.html', rooms=rooms, speakers=speakers, lengths=lengths, user = current_user)
+    return render_template('html/register_talk.html', rooms=rooms, speakers=speakers, lengths=lengths, user = current_user, editions = editions)
 
 @app.route('/add_speaker', methods=['GET', 'POST'])
 @login_required
@@ -342,7 +345,17 @@ def admin_panel():
         badges = generate_badges(edit_id, badge_type)
         return render_template('html/badges.html', badges=badges)
 
-    return render_template('html/admin_panel.html', user = current_user)
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute('SELECT * FROM full_edition_statistics')
+    editions = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template('html/admin_panel.html', user = current_user, editions = editions)
 
 def generate_badges(edit_id, badge_type):
     conn = get_db_connection()
@@ -465,6 +478,8 @@ def events():
             timetable[current_date] = get_timetable(edition_id, current_date)
             current_date += timedelta(days=1)
 
+        cur.close()
+        conn.close()
         
         return render_template('html/edition.html', edition_details=edition_details, timetable=timetable, edition_id=edition_id, user = current_user, is_volunteer = is_volunteer, present = occupied_prelections, absent = avaible_prelections)
     else:
@@ -474,6 +489,7 @@ def events():
         current_future_editions = [edition for edition in editions if edition[2] >= current_date]
         past_editions = [edition for edition in editions if edition[2] < current_date]
 
+    
     return render_template('html/events.html', current_future_editions=current_future_editions, past_editions=past_editions, user = current_user)
         
 @app.route('/join_community', methods=['GET', 'POST'])
