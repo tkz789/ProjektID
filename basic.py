@@ -404,7 +404,23 @@ def get_timetable(edition_id, event_date):
 @login_required
 def events():
     edition_id = request.args.get('edition_id')
+    if request.method == 'POST':
 
+            conn = get_db_connection()
+            cur = conn.cursor()
+            user_id = current_user.get_id()   
+                
+            if request.form['action'] == 'update':
+                talk_id = request.form['join_id']
+                cur.execute("insert into wolontariusze_prelekcje values (%s, %s)", (user_id, talk_id))
+                conn.commit()
+
+
+            if request.form['action'] == 'delete':
+                leave_talk_id = request.form['leave_id']
+                cur.execute("delete from wolontariusze_prelekcje where id_czlonka = %s and id_prelekcji = %s", (user_id, leave_talk_id))
+                conn.commit()
+            
     if edition_id:
         try:
             edition_id = int(edition_id)
@@ -427,6 +443,7 @@ def events():
         start_date, end_date = edition_details[2], edition_details[3]
         current_date = start_date
 
+        
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("SELECT EXISTS(SELECT 1 FROM wolontariusze WHERE id_edycji = %s and id_czlonka = %s)", (edition_id, current_user.data["id_czlonka"]))
@@ -439,18 +456,8 @@ def events():
         while current_date <= end_date:
             timetable[current_date] = get_timetable(edition_id, current_date)
             current_date += timedelta(days=1)
-            
-        if request.method == 'POST':
-            user_id = current_user.get_id()
-            talk_id = request.form['join_id']
-            cur.execute("insert into wolontariusze_prelekcje values (%s, %s)", (user_id, talk_id))
-            conn.commit()
-            cur.execute("SELECT p.id_prelekcji, p.data_prelekcji, p.temat from prelekcje p where p.id_edycji = %s and not exists(select * from wolontariusze_prelekcje q where q.id_prelekcji = p.id_prelekcji and q.id_czlonka = %s)", (edition_id, current_user.data["id_czlonka"]))
-            avaible_prelections = cur.fetchall()
-            cur.execute("SELECT p.id_prelekcji, p.data_prelekcji, p.temat from prelekcje p where p.id_edycji = %s and exists(select * from wolontariusze_prelekcje q where q.id_prelekcji = p.id_prelekcji and q.id_czlonka = %s)", (edition_id, current_user.data["id_czlonka"]))
-            occupied_prelections = cur.fetchall()     
-            return render_template('html/edition.html', edition_details=edition_details, timetable=timetable, edition_id=edition_id, user = current_user, is_volunteer = is_volunteer, present = occupied_prelections, absent = avaible_prelections)
-    
+
+        
         return render_template('html/edition.html', edition_details=edition_details, timetable=timetable, edition_id=edition_id, user = current_user, is_volunteer = is_volunteer, present = occupied_prelections, absent = avaible_prelections)
     else:
         user_id = current_user.data['id_czlonka']
@@ -459,8 +466,8 @@ def events():
         current_future_editions = [edition for edition in editions if edition[2] >= current_date]
         past_editions = [edition for edition in editions if edition[2] < current_date]
 
-        return render_template('html/events.html', current_future_editions=current_future_editions, past_editions=past_editions, user = current_user)
-
+    return render_template('html/events.html', current_future_editions=current_future_editions, past_editions=past_editions, user = current_user)
+        
 @app.route('/join_community', methods=['GET', 'POST'])
 @login_required
 def join_community():
