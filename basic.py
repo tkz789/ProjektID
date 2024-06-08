@@ -188,23 +188,27 @@ def get_replies(parent_post_id):
 @app.route('/feed')
 @login_required
 def feed():
-    community_id = request.args.get('community_id')
-    post_id = request.args.get('post_id')
-    user_id = current_user.data['id_czlonka']
 
-    if not community_id:
-        communities = get_communities_with_names(user_id)
-        posts = get_user_posts_with_names(user_id)
-        return render_template('html/communities_feed.html', communities=communities, posts=posts, user = current_user)
+    with get_db_connection() as conn, conn.cursor() as cur:
+        community_id = request.args.get('community_id')
+        post_id = request.args.get('post_id')
+        user_id = current_user.data['id_czlonka']
 
+        if not community_id:
+            communities = get_communities_with_names(user_id)
+            posts = get_user_posts_with_names(user_id)
+            return render_template('html/communities_feed.html', communities=communities, posts=posts, user = current_user)
 
-    if post_id:
-        post = get_post(post_id)
-        replies = get_replies(post_id)
-        return render_template('html/posty.html', post=post, replies=replies, community_id=community_id, user = current_user)
-    else:
-        posts = get_posts(community_id)
-        return render_template('html/feed.html', posts=posts, community_id=community_id, user = current_user)
+        cur.execute('SELECT nazwa FROM spolecznosci WHERE id_spolecznosci = %s', (community_id))
+        community_name = cur.fetchone()[0]
+
+        if post_id:
+            post = get_post(post_id)
+            replies = get_replies(post_id)
+            return render_template('html/posty.html', post=post, replies=replies, community_id=community_id, cname = community_name, user = current_user)
+        else:
+            posts = get_posts(community_id)
+            return render_template('html/feed.html', posts=posts, community_id=community_id, cname = community_name, user = current_user)
 
 
 
