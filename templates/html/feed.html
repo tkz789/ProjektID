@@ -44,13 +44,13 @@
       <ul>
         {% for post in posts %}
           <li class="posts awoid_gap">
+            <button class="btn" type="submit">Zobacz odpowiedzi</button>
             <h2>{{ post[5] }}</h2>
             <p>{{ post[6] }}</p>
             <p><small>Post utworzony przez użytkownika {{ post[3] }} dnia {{ post[4] }}</small></p>
             <form action="{{ url_for('feed') }}" method="get">
               <input type="hidden" name="community_id" value="{{ community_id }}">
               <input type="hidden" name="post_id" value="{{ post[0] }}">
-              <button class="btn" type="submit">Zobacz odpowiedzi</button>
             </form>
           </li>
           <br>
