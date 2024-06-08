@@ -1,16 +1,3 @@
--- create or replace function login(username varchar(30), g_password varchar(162)) returns integer as $$
--- declare user_id integer;
--- user_password varchar(50);
--- begin
--- user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = username);
--- if(user_id is null) then raise exception 'Niepoprawna nazwa uzytkownika'; end if;
--- user_password = (select haslo from hasla where id_czlonka = user_id 
--- and data_od = (select max(h.data_od) from hasla h where h.id_czlonka = user_id));
--- if(user_password is null or g_password != user_password) then raise exception 'Wprowadzone haslo jest nieprawidlowe'; end if;
--- return user_id;
--- end;
--- $$ language plpgsql;
-
 create or replace function get_user_id(username varchar(30)) returns integer as $$
 declare user_id integer default -1;
 begin
@@ -218,9 +205,13 @@ talk_id integer;
 avaible boolean default true;
 len1 interval;
 len2 interval;
+begin_date date;
+end_date date;
 k record;
 begin
 len1 = (select dlugosc from dlugosci where dlugosc_prelekcji = talk_length);
+begin_date = (select data_rozpoczecia from edycje where id_edycji = edit);
+end_date = (select data_zakonczenia from edycje where id_edycji = edit);
 for k in select * from prelekcje loop
     len2 = (select dlugosc from dlugosci where dlugosc_prelekcji = k.dlugosc_prelekcji);
     if(intersects(k.data_prelekcji::timestamp, talk_date::timestamp, len2, len1)) then
@@ -231,6 +222,9 @@ for k in select * from prelekcje loop
 end loop;
 if(avaible = false) then
 raise exception 'Nie mozna zarejestrowac prelekcji, gdyz inna odbywa sie w tym czasie';
+end if;
+if(talk_date < begin_date::timestamp or talk_date > end_date::timestamp) then
+raise exception 'Nie mozna zarejestrowac prelekcji poza czasem trwania edycji';
 end if;
 insert into prelekcje(id_edycji, id_sali, data_prelekcji, dlugosc_prelekcji, temat, opis) values
 (edit, room, talk_date, talk_length, subj, descript) returning "id_prelekcji" into talk_id;
