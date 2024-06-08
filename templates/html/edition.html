@@ -54,15 +54,17 @@
                 <th>Data i godzina</th>
                 <th>Temat</th>
                 <th>Prowadzący</th>
+                <th>Sala</th>
                 <th>Wolontariusze</th>
             </tr>
         </thead>
         <tbody>
             {% for event in events %}
             <tr>
-                <td>{{ event[1] }}</td>
+                <td>{{ event[0] }} - {{event[1]}}</td>
                 <td>{{ event[2] }}</td>
                 <td>{{ event[4] }}</td>
+                <td>{{ event[5] }}</td>
                 <td>{{ event[6] }}</td>
             </tr>
             {% endfor %}
@@ -72,7 +74,7 @@
     {% else %}
         <ul class="event-time">
           {% for event in events %}
-            <li>{{ event[1] }} Temat: {{ event[2] }}, prowadzący {{ event[4] }}
+            <li>{{ event[0] }} - {{ event[1] }} Temat: {{ event[2] }}, Prowadzący: {{ event[4] }}, Sala: {{ event[5] }}
                 
           {% endfor %}
         </ul>

@@ -300,6 +300,35 @@ def add_speaker():
 
     return render_template('html/add_speaker.html', speakers=speakers, talks=talks, user = current_user)
 
+@app.route('/add_volonteer', methods=['GET', 'POST'])
+@login_required
+def add_volonteer():
+    if not current_user.is_admin:
+        flash("Nie masz dostępu do funkcji admina!")
+        return redirect(url_for("dashboard"))
+
+    with get_db_connection() as conn, conn.cursor() as cur:
+        if request.method == 'POST':
+            edit_id = request.form['edit_id']
+            member_id = request.form['member_id']
+            try:
+                cur.execute("""
+                    INSERT INTO wolontariusze VALUES (%s, %s);
+                """, (member_id, edit_id))
+                conn.commit()
+                flash("Udało się dodać wolontariusza!")
+            except Exception as e:
+                conn.rollback()
+                flash(str(e), 'error')
+            return redirect(url_for('dashboard'))
+
+        cur.execute('SELECT id_czlonka, imie, nazwisko FROM czlonkowie')
+        members = cur.fetchall()
+
+        cur.execute('SELECT e.id_edycji, (select w.nazwa from wydarzenia w where w.id_wydarzenia = e.id_wydarzenia), e.nr_edycji FROM edycje e')
+        editions = cur.fetchall()
+
+    return render_template('html/add_volonteer.html', members = members, editions = editions, user = current_user)
 
 
 @app.route('/admin_panel', methods=['GET', 'POST'])
@@ -354,7 +383,7 @@ def get_edition_details(edition_id):
 
 def get_timetable(edition_id, event_date):
     with get_db_connection() as conn, conn.cursor() as cur:
-        cur.execute('SELECT * FROM get_timestable(%s, %s)', (edition_id, event_date))
+        cur.execute('SELECT r.data_rozpoczecia, r.data_zakonczenia, r.temat, r.opis, r.prowadzacy, (select s.nazwa from sale s where s.id_sali = r.sala), r.wolontariusze FROM get_timestable(%s, %s) as r', (edition_id, event_date))
         return cur.fetchall()
 
 @app.route('/events', methods=['GET', 'POST'])
