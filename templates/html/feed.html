@@ -10,7 +10,7 @@
     {% endif %}
     {% endwith %}
     <div class="holly_center_pls_press_f_for_coder">
-    <h1 class="h2_form">Posty dla spolecznosci o ID: {{ community_id }}</h1>
+    <h1 class="h2_form">Posty dla spolecznosci: {{ cname }}</h1>
 
     <form class="form_regist" action="{{ url_for('add_post') }}" method="post">
       <input type="hidden" name="community_id" value="{{ community_id }}">
@@ -63,7 +63,3 @@
   </div>
   <a class="btn" href="{{ url_for('dashboard') }}">Powrót</a>
   {% endblock %}
-
-  
-
-  
