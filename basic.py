@@ -383,7 +383,7 @@ def get_edition_details(edition_id):
 
 def get_timetable(edition_id, event_date):
     with get_db_connection() as conn, conn.cursor() as cur:
-        cur.execute('SELECT * FROM get_timestable(%s, %s)', (edition_id, event_date))
+        cur.execute('SELECT r.data_rozpoczecia, r.data_zakonczenia, r.temat, r.opis, r.prowadzacy, (select s.nazwa from sale s where s.id_sali = r.sala), r.wolontariusze FROM get_timestable(%s, %s) as r', (edition_id, event_date))
         return cur.fetchall()
 
 @app.route('/events', methods=['GET', 'POST'])
