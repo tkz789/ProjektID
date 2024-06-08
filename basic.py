@@ -161,12 +161,12 @@ def get_statistics():
 
 def get_posts(community_id):
     with get_db_connection() as conn, conn.cursor() as cur:
-        cur.execute('SELECT * FROM get_posts(%s)', (community_id,))
+        cur.execute('SELECT r.id_posta, r.id_posta_nad, r.id_spolecznosci, (select p.nazwa_uzytkownika from czlonkowie p where p.id_czlonka = r.id_czlonka), r.data_dodania, r.tytul, r.tresc FROM get_posts(%s) r', (community_id,))
         return cur.fetchall()
 
 def get_post(post_id):
     with get_db_connection() as conn, conn.cursor() as cur:
-        cur.execute('SELECT * FROM posty WHERE id_posta = %s', (post_id,))
+        cur.execute('SELECT r.id_posta, r.id_posta_nad, r.id_spolecznosci, (select p.nazwa_uzytkownika from czlonkowie p where p.id_czlonka = r.id_czlonka), r.data_dodania, r.tytul, r.tresc FROM posty r WHERE r.id_posta = %s', (post_id,))
         return cur.fetchone()
 
 def get_communities_with_names(member_id):
@@ -181,7 +181,7 @@ def get_user_posts_with_names(user_id):
 
 def get_replies(parent_post_id):
     with get_db_connection() as conn, conn.cursor() as cur:
-        cur.execute('SELECT * FROM get_replies(%s)', (parent_post_id,))
+        cur.execute('SELECT r.id_posta, r.id_posta_nad, r.id_spolecznosci, (select p.nazwa_uzytkownika from czlonkowie p where p.id_czlonka = r.id_czlonka), r.data_dodania, r.tytul, r.tresc FROM get_replies(%s) r', (parent_post_id,))
         return cur.fetchall()
 
 
