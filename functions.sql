@@ -1,3 +1,16 @@
+-- create or replace function login(username varchar(30), g_password varchar(162)) returns integer as $$
+-- declare user_id integer;
+-- user_password varchar(50);
+-- begin
+-- user_id = (select id_czlonka from czlonkowie where nazwa_uzytkownika = username);
+-- if(user_id is null) then raise exception 'Niepoprawna nazwa uzytkownika'; end if;
+-- user_password = (select haslo from hasla where id_czlonka = user_id 
+-- and data_od = (select max(h.data_od) from hasla h where h.id_czlonka = user_id));
+-- if(user_password is null or g_password != user_password) then raise exception 'Wprowadzone haslo jest nieprawidlowe'; end if;
+-- return user_id;
+-- end;
+-- $$ language plpgsql;
+
 create or replace function get_user_id(username varchar(30)) returns integer as $$
 declare user_id integer default -1;
 begin
@@ -381,13 +394,6 @@ for user_to_archive in select * from czlonkowie loop
     if(user_to_archive.data_dolaczenia + '1 year'::interval < NOW()) then 
         last_post = (select max(data_dodania) from posty where id_czlonka = user_to_archive.id_czlonka);
         if(last_post is null) then 
-            delete from czlonkowie_edycje where id_czlonka = user_to_archive.id_czlonka;
-            delete from czlonkowie_spolecznosci where id_czlonka = user_to_archive.id_czlonka;
-            delete from wolontariusze where id_czlonka = user_to_archive.id_czlonka;
-            delete from organizatorzy where id_czlonka = user_to_archive.id_czlonka;
-            update prelegenci p set id_czlonka = null where p.id_czlonka = user_to_archive.id_czlonka;
-            insert into czlonkowie_archiwum values (user_to_archive.id_czlonka, user_to_archive.id_zaimka, user_to_archive.nazwa_uzytkownika,
-            user_to_archive.email, user_to_archive.imie, user_to_archive.nazwisko, user_to_archive.newsletter, user_to_archive.data_dolaczenia);
             delete from czlonkowie where id_czlonka = user_to_archive.id_czlonka;
         end if;
     end if;
@@ -468,6 +474,40 @@ begin
 end;
 $$ language plpgsql;
 
+create or replace function prelekcja_delete_trigger() returns trigger as $$
+begin
+    delete from prelekcje_prelegenci where id_prelekcji = OLD.id_prelekcji;
+    return OLD;
+end;
+$$ language plpgsql;
+
+create or replace function prelegent_delete_trigger() returns trigger as $$
+begin
+    delete from prelekcje_prelgenci where id_prelegenta = OLD.id_prelegenta;
+    return OLD;
+end;
+$$ language plpgsql;
+
+create or replace function czlonkowie_delete_trigger() returns trigger as $$
+begin
+
+if(OLD.id_czlonka = 1000420) then
+return NEW;
+end if;
+
+update posty p set id_czlonka = 1000420 where id_czlonka = OLD.id_czlonka;
+
+delete from czlonkowie_edycje where id_czlonka = OLD.id_czlonka;
+delete from czlonkowie_spolecznosci where id_czlonka = OLD.id_czlonka;
+delete from wolontariusze where id_czlonka = OLD.id_czlonka;
+delete from organizatorzy where id_czlonka = OLD.id_czlonka;
+update prelegenci p set id_czlonka = null where p.id_czlonka = OLD.id_czlonka;
+insert into czlonkowie_archiwum values (OLD.id_czlonka, OLD.id_zaimka, OLD.nazwa_uzytkownika,
+OLD.email, OLD.imie, OLD.nazwisko, OLD.newsletter, OLD.data_dolaczenia);
+return OLD;
+end;
+$$ language plpgsql;
+
 create trigger czlonkowie_check after update on czlonkowie for each row execute procedure czlonkowie_trigger();
 create trigger prelegenci_check before insert or update on prelegenci for each row execute procedure prelegent_trigger();
 create trigger czlonkowie_edycje_check before insert or update on czlonkowie_edycje for each row execute procedure ce_trigger();
@@ -475,3 +515,6 @@ create trigger wp_check before insert or update on wolontariusze_prelekcje for e
 create trigger wolontariusze_check before insert or update on wolontariusze for each row execute procedure wolontariusze_trigger();
 create trigger ce_delete_check before delete on czlonkowie_edycje for each row execute procedure ce_delete_trigger();
 create trigger wolo_delete_check before delete on wolontariusze for each row execute procedure wolontariusze_delete_trigger();
+create trigger czlonkowie_trigger before delete on czlonkowie for each row execute procedure czlonkowie_delete_trigger();
+create trigger prelegent_trigger before delete on prelegenci for each row execute procedure prelegent_delete_trigger();
+create trigger prelekcja_trigger before delete on prelekcje for each row execute procedure prelekcja_delete_trigger();
