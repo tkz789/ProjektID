@@ -139,6 +139,10 @@ end;
 $$ language plpgsql;
 
 create index users on czlonkowie(id_czlonka);
+create index posts on posty(id_posta);
+create index posts_archive on posty_archiwum(id_posta);
+create index users_archive on czlonkowie_archiwum(id_czlonka);
+create index talks on prelekcje(id_prelekcji);
 
 create or replace function count_members(community_id int) returns int as $$
 declare
