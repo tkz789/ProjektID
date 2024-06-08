@@ -315,7 +315,22 @@ INSERT INTO prelekcje (id_edycji, id_sali, data_prelekcji, dlugosc_prelekcji, te
 (1, 8, '2023-10-15 16:00:00', 4, 'Hackers 101'),
 (1, 8, '2023-10-15 18:00:00', 4, 'Competitive Programming - how to start?'),
 (1, 9, '2023-10-13 12:00:00', 4, 'Jak powstały wirusy komputerowe?'),
-(1, 9, '2023-10-13 14:00:00', 4, 'Zakończenie');
+(1, 9, '2023-10-13 14:00:00', 4, 'Zakończenie'),
+
+(2, 9, '2024-10-13 12:00:00', 4, 'Rozpoczęcie'),
+(2, 9, '2024-10-13 14:00:00', 4, 'Sztuczna inteliencja - cele i niebezpieczeństwa'),
+(2, 8, '2024-10-13 16:00:00', 4, 'Quantum Computing in modern physics'),
+(2, 8, '2024-10-13 18:00:00', 4, 'Navier-Stokes equation - solving it together!'),
+(2, 9, '2024-10-14 12:00:00', 4, 'In-game development'),
+(2, 9, '2024-10-14 14:00:00', 4, 'Zasada superpozycji a programowanie kwantowe'),
+(2, 8, '2024-10-14 16:00:00', 4, 'How to build a game engine'),
+(2, 8, '2024-10-14 18:00:00', 4, 'Jak rozwijać swoją markę w IT?'),
+(2, 9, '2024-10-15 12:00:00', 4, 'Komputery Kwantowe - co nas czeka w przyszłości?'),
+(2, 9, '2024-10-15 14:00:00', 4, 'How to hack a polish train'),
+(2, 8, '2024-10-15 16:00:00', 4, 'Hackers 101'),
+(2, 8, '2024-10-15 18:00:00', 4, 'Competitive Programming - how to start?'),
+(2, 9, '2024-10-13 12:00:00', 4, 'Jak powstały wirusy komputerowe?'),
+(2, 9, '2024-10-13 14:00:00', 4, 'Zakończenie');
 
 INSERT INTO prelekcje_prelegenci(id_prelegenta, id_prelekcji) VALUES
 (10, 1),
@@ -331,7 +346,21 @@ INSERT INTO prelekcje_prelegenci(id_prelegenta, id_prelekcji) VALUES
 (4, 11),
 (2, 12),
 (3, 13),
-(10, 14);
+(10, 14),
+(10, 15),
+(1, 16),
+(1, 17),
+(9, 18),
+(5, 19),
+(4, 20),
+(6, 21),
+(8, 22),
+(7, 23),
+(3, 24),
+(4, 25),
+(2, 26),
+(3, 27),
+(10, 28);
 
 INSERT INTO organizatorzy(id_czlonka, id_edycji) VALUES
 (1, 1),
