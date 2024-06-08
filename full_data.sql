@@ -60,6 +60,10 @@ INSERT INTO czlonkowie (id_zaimka, nazwa_uzytkownika, email, imie, nazwisko, new
 (2, 'cdozotuovk', 'Dawid.Miara@mail.com','Dawid','Miara', '0', '2023-03-16'),
 (4, 'thfavuzxym', 'Dawid.Kolka@mail.com','Dawid','Kolka', '1', '2022-07-11');
 
+INSERT INTO czlonkowie (id_zaimka, nazwa_uzytkownika, email, imie, nazwisko, newsletter, data_dolaczenia, haslo_hash) VALUES 
+(null, 'admin1', 'admin1@mail.com', 'Gall', 'Anonim', '0', '2024-06-07', 'scrypt:32768:8:1$oIC4qvovUEGqNJY8$6b677839bff548cab9f764cf51bf8420271d83a26e75e26031b7b3749806397df2ca1a47c7e6d38b1a6621ae8c0ac50044806f89a2a91310bafc349657b8ded5');
+INSERT INTO czlonkowie values
+(1000420, 2, 'Deleted', 'Deleted', 'Deleted', 'Deleted', '0', '1999-01-01');
 INSERT INTO spolecznosci(id_spolecznosci, nazwa) VALUES
 (1, 'Społeczność Matematyków'),
 (2, 'Społeczność Programistów'),
@@ -416,7 +420,9 @@ INSERT INTO czlonkowie_spolecznosci (id_czlonka, id_spolecznosci, id_roli) VALUE
 (47, 3 ,2),
 (48, 3 ,2),
 (49, 1 ,2),
-(50, 2 ,2);
+(50, 2 ,2),
+(51, 1, 1);
+
 
 
 INSERT INTO czlonkowie_edycje (id_czlonka, id_edycji) VALUES
