@@ -1,6 +1,6 @@
 # Instalacja
 
-Do uruchomienia aplikacji jest wymagany Python, prawdopodobnie w wersji >= 3.8 (używaliśmy 3.12, ale powinien działać na starszych).
+Do uruchomienia aplikacji jest wymagany Python w wersji >= 3.8 (używaliśmy 3.12, ale powinien działać na starszych).
 
 W celu utworzenia środowiska wirtualnagego oraz instalacji wymaganych bibliotek proszę, będąc w folderze, gdzie rozpakowano projekt, wykonać komendy:
 
