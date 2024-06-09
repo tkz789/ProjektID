@@ -60,6 +60,10 @@ INSERT INTO czlonkowie (id_zaimka, nazwa_uzytkownika, email, imie, nazwisko, new
 (2, 'cdozotuovk', 'Dawid.Miara@mail.com','Dawid','Miara', '0', '2023-03-16'),
 (4, 'thfavuzxym', 'Dawid.Kolka@mail.com','Dawid','Kolka', '1', '2022-07-11');
 
+INSERT INTO czlonkowie (id_zaimka, nazwa_uzytkownika, email, imie, nazwisko, newsletter, data_dolaczenia, haslo_hash) VALUES 
+(null, 'admin1', 'admin1@mail.com', 'Gall', 'Anonim', '0', '2024-06-07', 'scrypt:32768:8:1$oIC4qvovUEGqNJY8$6b677839bff548cab9f764cf51bf8420271d83a26e75e26031b7b3749806397df2ca1a47c7e6d38b1a6621ae8c0ac50044806f89a2a91310bafc349657b8ded5');
+INSERT INTO czlonkowie values
+(1000420, 2, 'Deleted', 'Deleted', 'Deleted', 'Deleted', '0', '1999-01-01');
 INSERT INTO spolecznosci(id_spolecznosci, nazwa) VALUES
 (1, 'Społeczność Matematyków'),
 (2, 'Społeczność Programistów'),
@@ -315,7 +319,22 @@ INSERT INTO prelekcje (id_edycji, id_sali, data_prelekcji, dlugosc_prelekcji, te
 (1, 8, '2023-10-15 16:00:00', 4, 'Hackers 101'),
 (1, 8, '2023-10-15 18:00:00', 4, 'Competitive Programming - how to start?'),
 (1, 9, '2023-10-13 12:00:00', 4, 'Jak powstały wirusy komputerowe?'),
-(1, 9, '2023-10-13 14:00:00', 4, 'Zakończenie');
+(1, 9, '2023-10-13 14:00:00', 4, 'Zakończenie'),
+
+(2, 9, '2024-10-13 12:00:00', 4, 'Rozpoczęcie'),
+(2, 9, '2024-10-13 14:00:00', 4, 'Sztuczna inteliencja - cele i niebezpieczeństwa'),
+(2, 8, '2024-10-13 16:00:00', 4, 'Quantum Computing in modern physics'),
+(2, 8, '2024-10-13 18:00:00', 4, 'Navier-Stokes equation - solving it together!'),
+(2, 9, '2024-10-14 12:00:00', 4, 'In-game development'),
+(2, 9, '2024-10-14 14:00:00', 4, 'Zasada superpozycji a programowanie kwantowe'),
+(2, 8, '2024-10-14 16:00:00', 4, 'How to build a game engine'),
+(2, 8, '2024-10-14 18:00:00', 4, 'Jak rozwijać swoją markę w IT?'),
+(2, 9, '2024-10-15 12:00:00', 4, 'Komputery Kwantowe - co nas czeka w przyszłości?'),
+(2, 9, '2024-10-15 14:00:00', 4, 'How to hack a polish train'),
+(2, 8, '2024-10-15 16:00:00', 4, 'Hackers 101'),
+(2, 8, '2024-10-15 18:00:00', 4, 'Competitive Programming - how to start?'),
+(2, 9, '2024-10-13 12:00:00', 4, 'Jak powstały wirusy komputerowe?'),
+(2, 9, '2024-10-13 14:00:00', 4, 'Zakończenie');
 
 INSERT INTO prelekcje_prelegenci(id_prelegenta, id_prelekcji) VALUES
 (10, 1),
@@ -331,7 +350,21 @@ INSERT INTO prelekcje_prelegenci(id_prelegenta, id_prelekcji) VALUES
 (4, 11),
 (2, 12),
 (3, 13),
-(10, 14);
+(10, 14),
+(10, 15),
+(1, 16),
+(1, 17),
+(9, 18),
+(5, 19),
+(4, 20),
+(6, 21),
+(8, 22),
+(7, 23),
+(3, 24),
+(4, 25),
+(2, 26),
+(3, 27),
+(10, 28);
 
 INSERT INTO organizatorzy(id_czlonka, id_edycji) VALUES
 (1, 1),
@@ -387,7 +420,9 @@ INSERT INTO czlonkowie_spolecznosci (id_czlonka, id_spolecznosci, id_roli) VALUE
 (47, 3 ,2),
 (48, 3 ,2),
 (49, 1 ,2),
-(50, 2 ,2);
+(50, 2 ,2),
+(51, 1, 1);
+
 
 
 INSERT INTO czlonkowie_edycje (id_czlonka, id_edycji) VALUES

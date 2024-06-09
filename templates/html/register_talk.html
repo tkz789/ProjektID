@@ -11,8 +11,7 @@
     {% endwith %}
     <div class="holly_center_pls_press_f_for_coder">
     <h2 class="h2_form">Rejestracja rozmowy</h2>
-    <form class="form_regist
-    " method="POST">
+    <form class="form_regist" method="POST">
  <div>  <label for="speaker_id">Mówca:</label>
       <select name="speaker_id" id="speaker_id">
         {% for speaker in speakers %}
@@ -21,8 +20,13 @@
       </select><br>
     </div> 
     <div>
-      <label for="edit">Edycja(ID):</label>
-      <input type="number" id="edit" name="edit"><br>
+
+      <label for="edit">Edycja:</label>
+      <select name="edit" id="edit">
+        {% for edition in editions %}
+          <option value="{{ edition[0] }}">Wydarzenie: {{ edition[1] }}, edycja {{ edition[2] }}</option>
+        {% endfor %}
+      </select>
     </div>
     <div>
       <label for="room">Sala:</label>

@@ -11,7 +11,7 @@
     {% endif %}
   {% endwith %}
     <div class="holly_center_pls_press_f_for_coder">
-      <h2>Witaj, {{ username }}</h2>
+      <h2 class="h2_form">Witaj, <i>{{ username }}</i></h2>
       <br>
       {% if user.is_admin %}
         <a class="btn" href="{{ url_for('admin_panel') }}">Panel administratora</a><br>

@@ -1,7 +1,6 @@
 {% extends "html/index.html" %}
 {% block title %}Posty społeczności{% endblock %}
 {% block body %}
-
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
@@ -10,9 +9,9 @@
     {% endif %}
 {% endwith %}
  <div class="holly_center_pls_press_f_for_coder">
-  <div class="form_regist">
+  <div class="form_regist_1">
     <h1 class="h2_form"> {{ edition_details[0] }} Edycja: {{ edition_details[1] }}</h1>
-    <div class="holly_center_pls_press_f_for_coder">
+    <div class="holly_center_pls_press_f_for_coder avoid_margin awoid_gap">
     <p>Początek wydarzenia: {{ edition_details[2] }}</p>
     <p>Koniec wydarzenia: {{ edition_details[3] }}</p>
   </div>
@@ -21,22 +20,69 @@
   <form action="{{ url_for('events') }}" method="get">
     <button class="btn"type="submit">Wróć do wyboru edycji</button>
   </form>
+
+  {% if is_volunteer %}
+  <div>
+    <form class="form_regist_1" method="POST">
+      <label for="join_id">Dołącz do pilnowania prelekcji:</label>
+      <select name="join_id" id="join_id">
+        {% for talk in absent %}
+          <option value="{{ talk[0] }}">{{ talk[1] }} : {{ talk[2] }}</option>
+        {% endfor %}
+      </select></div>
+      <button class="btn" type="submit" name="action" value="update">Dołącz!</button> 
+      </form>
+      <form class= "form_regist_1" method="POST">
+        <label for="leave_id">Przestań pilnować prelekcję:</label>
+        <select name="leave_id" id="leave_id">
+          {% for talk in present %}
+            <option value="{{ talk[0] }}">{{ talk[1] }} : {{ talk[2] }}</option>
+          {% endfor %}
+        </select></div>
+        <button class="btn"  name="action" value="delete" type="submit">Opuść!</button> 
+      </form>
+  {% endif %}
     <h1 class="h2_form bigger">Prelekcje</h1>
     {% for date, events in timetable.items() %}
       <h3 class="h2_form ">{{ date }}</h3>
       {% if events %}
+      {% if is_volunteer %}
+      <div class="container">
+      <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>Data i godzina</th>
+                <th>Temat</th>
+                <th>Prowadzący</th>
+                <th>Sala</th>
+                <th>Wolontariusze</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td>{{ event[0] }} - {{event[1]}}</td>
+                <td>{{ event[2] }}</td>
+                <td>{{ event[4] }}</td>
+                <td>{{ event[5] }}</td>
+                <td>{{ event[6] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
         <ul class="event-time">
           {% for event in events %}
-            <li>{{ event[1] }} Temat: {{ event[2] }}, prowadzący {{ event[4] }}
-            {% if is_volunteer %}
-                , wolontariusze: {{ event[6] }}
-            {% endif %}
-            </li>
+            <li>{{ event[0] }} - {{ event[1] }} Temat: {{ event[2] }}, Prowadzący: {{ event[4] }}, Sala: {{ event[5] }}
+                
           {% endfor %}
         </ul>
+
+      {% endif %}
       {% else %}
         <p class="event-time">Brak zaplanowanych prelekcji.</p>
-      {% endif %}
+    {% endif %}
     {% endfor %}
   </div>
  

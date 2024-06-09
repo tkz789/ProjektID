@@ -1,0 +1,36 @@
+{% extends "html/index.html" %}
+{% block title %}Rejestracja  wolontariuszy{% endblock %}
+{% block body %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="holly_center_pls_press_f_for_coder">
+    <h2 class="h2_form">Formularz dodania wolontariusza do edycji</h2>
+    <form class="form_regist" method="POST">
+      <div>
+      <label for="edit_id">Edycja:</label>
+      <select name="edit_id" id="edit_id">
+        {% for edition in editions %}
+          <option value="{{ edition[0] }}">{{ edition[1] }} Edycja {{ edition[2] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+      <div>
+      <label for="member_id">Członek:</label>
+      <select name="member_id" id="member_id">
+        {% for member in members %}
+          <option value="{{ member[0] }}">{{ member[1] }} {{ member[2] }}</option>
+        {% endfor %}
+      </select></div>
+      <div>
+      <button class="btn" type="submit">Dodaj wolontariusza!</button> </div>
+    </form> 
+    <a class="btn" href="{{ url_for('dashboard') }}">Powrót</a>
+  </div>
+  <img id="photo" src="static/images/log_phot.png">
+    {% endblock %}

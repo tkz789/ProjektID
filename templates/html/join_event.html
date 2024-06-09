@@ -3,7 +3,8 @@
 {% block body %}
 
 {% if events|length > 0 %}
-<form method="POST">
+<div class="holly_center_pls_press_f_for_coder">
+<form class="form_regist" method="POST">
     <div>
         <select class="btn" name="edition_id" id="edition_id">
             {% for i in events %}
@@ -17,6 +18,9 @@
 </form>
 {% else %}
 <p>Brak wydarzeń,do których możesz dołączyć!</p>
+<a class="btn" href="{{ url_for('dashboard') }}">Powrót</a>
+<img id="photo" src="static/images/log_phot.png">
+</div>
 {% endif %}
 
 {% endblock %}

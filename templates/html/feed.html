@@ -10,7 +10,7 @@
     {% endif %}
     {% endwith %}
     <div class="holly_center_pls_press_f_for_coder">
-    <h1 class="h2_form">Posty dla spolecznosci o ID: {{ community_id }}</h1>
+    <h1 class="h2_form">Posty dla spolecznosci: {{ cname }}</h1>
 
     <form class="form_regist" action="{{ url_for('add_post') }}" method="post">
       <input type="hidden" name="community_id" value="{{ community_id }}">
@@ -44,14 +44,15 @@
       <ul>
         {% for post in posts %}
           <li class="posts awoid_gap">
-            <h2>{{ post[5] }}</h2>
-            <p>{{ post[6] }}</p>
-            <p><small>Post utworzony przez użytkownika o ID {{ post[3] }} dnia {{ post[4] }}</small></p>
             <form action="{{ url_for('feed') }}" method="get">
               <input type="hidden" name="community_id" value="{{ community_id }}">
               <input type="hidden" name="post_id" value="{{ post[0] }}">
               <button class="btn" type="submit">Zobacz odpowiedzi</button>
             </form>
+            <h2>{{ post[5] }}</h2>
+            <p>{{ post[6] }}</p>
+            <p><small>Post utworzony przez użytkownika {{ post[3] }} dnia {{ post[4] }}</small></p>
+            
           </li>
           <br>
         {% endfor %}
